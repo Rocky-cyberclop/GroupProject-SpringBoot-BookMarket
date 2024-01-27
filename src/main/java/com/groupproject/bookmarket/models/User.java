@@ -41,6 +41,8 @@ public class User implements Serializable {
 
     private String avatar;
 
+    private Boolean isBan;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     @JsonIgnore
     private List<CartItem> cartItems = new ArrayList<>();

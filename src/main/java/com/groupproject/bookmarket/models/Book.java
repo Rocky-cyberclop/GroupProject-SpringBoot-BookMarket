@@ -40,6 +40,8 @@ public class Book implements Serializable {
 
     private Integer quantity;
 
+    private Boolean isDelete;
+
     @ManyToMany
     @JoinTable(
             name = "book_author",

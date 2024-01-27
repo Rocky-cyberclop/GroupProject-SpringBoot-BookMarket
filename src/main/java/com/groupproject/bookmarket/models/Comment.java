@@ -24,6 +24,8 @@ public class Comment implements Serializable {
 
     private String content;
 
+    private Boolean isDelete;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     @JsonIgnore
