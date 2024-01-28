@@ -25,7 +25,11 @@ public class Book implements Serializable {
     private Long id;
 
     @NotBlank(message = "Name can not be blank")
+    @Column(columnDefinition = "text")
     private String title;
+
+    @Column(columnDefinition = "text")
+    private String description;
 
     private String language;
 

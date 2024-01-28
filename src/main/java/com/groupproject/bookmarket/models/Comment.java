@@ -22,6 +22,7 @@ public class Comment implements Serializable {
     @Positive(message = "Rating must be positive")
     private Short rating;
 
+    @Column(columnDefinition = "text")
     private String content;
 
     private Boolean isDelete;
