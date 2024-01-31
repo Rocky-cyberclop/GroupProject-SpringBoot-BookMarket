@@ -31,6 +31,7 @@ public class User implements Serializable {
 
     @NotBlank(message = "Name can not be blank")
     @Email(message = "Email is not valid")
+    @Column(unique = true)
     private String email;
 
     private String phone;
