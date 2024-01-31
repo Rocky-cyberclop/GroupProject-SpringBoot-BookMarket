@@ -24,9 +24,10 @@ public class CartItem implements Serializable {
     @Positive(message = "Quantity must be positive")
     private Integer quantity;
 
-    @ManyToMany(mappedBy = "cartItems")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id")
     @JsonIgnore
-    private List<Book> books = new ArrayList<>();
+    private Book book;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

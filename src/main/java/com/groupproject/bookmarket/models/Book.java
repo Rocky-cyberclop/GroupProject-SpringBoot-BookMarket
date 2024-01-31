@@ -70,11 +70,7 @@ public class Book implements Serializable {
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "book_cartItem",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "cartItem_id"))
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "book", orphanRemoval = true)
     @JsonIgnore
     private List<CartItem> cartItems = new ArrayList<>();
 
