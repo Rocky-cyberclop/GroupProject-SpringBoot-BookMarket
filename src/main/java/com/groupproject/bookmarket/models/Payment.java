@@ -27,7 +27,6 @@ public class Payment implements Serializable {
     private Long total;
 
     @OneToOne
-    @MapsId
     @JoinColumn(name = "order_id")
     private Order order;
 }
