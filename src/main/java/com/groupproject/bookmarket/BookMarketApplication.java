@@ -26,27 +26,4 @@ public class BookMarketApplication {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
-	CommandLineRunner run(UserService userService){
-		return args -> {
-//			User user = new User();
-//			user.setUsername("Long111");
-//			user.setFullName("LeHoangLong");
-//			user.setPassword("longvipzzz");
-//			user.setEmail("hoanglong@gmail.com");
-//			user.setPhone("0900402");
-//			user.setAddress("ffffff");
-//			userService.saveUser(user);
-
-			User user1 = new User();
-			user1.setUsername("Long112");
-			user1.setFullName("LeHoangLong");
-			user1.setPassword("longvipzzz");
-			user1.setEmail("hoanglong@gmail1.com");
-			user1.setPhone("0900402");
-			user1.setAddress("ffffff");
-			userService.saveUser(user1);
-		};
-	}
-
 }
