@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 class BookServiceImpl implements BookService {
@@ -67,18 +68,15 @@ class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public ResponseEntity<MyResponse> addNewBook(List<MultipartFile> images, String addBookRequest) throws JsonProcessingException {
+        MyResponse myResponse = new MyResponse();
         ObjectMapper objectMapper = new ObjectMapper();
         BookRequest request = objectMapper.readValue(addBookRequest, BookRequest.class);
 
-        List<Image> imageList = new ArrayList<>();
-        images.forEach(image -> {
-            Image newImage = new Image();
-            newImage.setId(null);
-            newImage.setUrl("http://localhost:8080/uploads/images/book/" + image.getOriginalFilename());
-            imageList.add(newImage);
-        });
-        filesStorageService.saveBookImages(images);
-        List<Image> imageListSaved = imageRepository.saveAll(imageList);
+        Optional<Book> bookOptional = bookRepository.findByTitle(request.getTitle());
+        if (bookOptional.isPresent()) {
+            myResponse.setMessage("This book is already exist!");
+            return new ResponseEntity<>(myResponse, HttpStatus.OK);
+        }
 
         List<Author> authors = authorRepository.findAllById(request.getAuthorIds());
         List<Genre> genres = genreRepository.findAllById(request.getGenreIds());
@@ -95,10 +93,20 @@ class BookServiceImpl implements BookService {
         newBook.setIsDelete(false);
         newBook.setAuthors(authors);
         newBook.setGenres(genres);
-        newBook.setImages(imageListSaved);
 
-        bookRepository.save(newBook);
-        MyResponse myResponse = new MyResponse();
+        Book bookSaved = bookRepository.save(newBook);
+
+        List<Image> imageList = new ArrayList<>();
+        images.forEach(image -> {
+            Image newImage = new Image();
+            newImage.setId(null);
+            newImage.setUrl("http://localhost:8080/uploads/images/book/" + image.getOriginalFilename());
+            newImage.setBook(bookSaved);
+            imageList.add(newImage);
+        });
+        filesStorageService.saveBookImages(images);
+        imageRepository.saveAll(imageList);
+
         myResponse.setMessage("Add new book successfully!");
         return new ResponseEntity<>(myResponse, HttpStatus.OK);
     }

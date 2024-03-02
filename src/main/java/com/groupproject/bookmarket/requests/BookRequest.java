@@ -17,10 +17,8 @@ public class BookRequest {
     private String description;
     private String language;
     private String publishDate;
-    private LocalDate lastUpdate;
     private Long price;
     private Integer quantity;
-    private Boolean isDelete;
     private List<Long> authorIds;
     private List<Long> genreIds;
 }
