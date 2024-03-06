@@ -2,7 +2,9 @@ package com.groupproject.bookmarket.services.impl;
 
 import com.groupproject.bookmarket.models.Author;
 import com.groupproject.bookmarket.models.Book;
+import com.groupproject.bookmarket.models.Genre;
 import com.groupproject.bookmarket.repositories.AuthorRepository;
+import com.groupproject.bookmarket.repositories.BookRepository;
 import com.groupproject.bookmarket.responses.Pagination;
 import com.groupproject.bookmarket.responses.PaginationResponse;
 import com.groupproject.bookmarket.services.AuthorService;
@@ -16,11 +18,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
     @Autowired
     private AuthorRepository authorRepository;
+    @Autowired
+    private BookRepository bookRepository;
     @Override
     public ResponseEntity<List<Author>> fetchAllAuthor() {
         return new ResponseEntity<>(authorRepository.findAll().subList(0, 100), HttpStatus.OK);
@@ -46,5 +51,11 @@ public class AuthorServiceImpl implements AuthorService {
                 .pagination(pagination)
                 .build();
         return new ResponseEntity<>(paginationResponse, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<Author>> fetchAuthorsByBookId(Long bookId) {
+        Optional<Book> book = bookRepository.findById(bookId);
+        return book.map(value -> new ResponseEntity<>(value.getAuthors(), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.OK));
     }
 }
