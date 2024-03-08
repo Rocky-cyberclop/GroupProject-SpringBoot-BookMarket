@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface AuthorRepository extends JpaRepository<Author, Long> {
     Page<Author> findByNameLike(Pageable pageable, String name);
+
+    List<Author> findAuthorByBooksId(Long id);
 }
