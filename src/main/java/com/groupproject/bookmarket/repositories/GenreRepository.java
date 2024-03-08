@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface GenreRepository extends JpaRepository<Genre, Long> {
     Page<Genre> findByNameLike(Pageable pageable, String name);
+
+    List<Genre> findByBooksId(Long id);
 }

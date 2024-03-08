@@ -1,6 +1,7 @@
 package com.groupproject.bookmarket.repositories;
 
 import com.groupproject.bookmarket.models.Book;
+import jakarta.annotation.Nonnull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Optional<Book> findByTitle(String title);
 
     Page<Book> findByTitleLikeAndIsDeleteFalse(Pageable pageable, String title);
+
+   @Nonnull
+    Page<Book> findAll(Pageable pageable);
+
 }

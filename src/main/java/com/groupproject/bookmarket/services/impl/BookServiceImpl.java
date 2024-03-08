@@ -2,18 +2,10 @@ package com.groupproject.bookmarket.services.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.groupproject.bookmarket.models.Author;
-import com.groupproject.bookmarket.models.Book;
-import com.groupproject.bookmarket.models.Genre;
-import com.groupproject.bookmarket.models.Image;
-import com.groupproject.bookmarket.repositories.AuthorRepository;
-import com.groupproject.bookmarket.repositories.BookRepository;
-import com.groupproject.bookmarket.repositories.GenreRepository;
-import com.groupproject.bookmarket.repositories.ImageRepository;
+import com.groupproject.bookmarket.models.*;
+import com.groupproject.bookmarket.repositories.*;
 import com.groupproject.bookmarket.requests.BookRequest;
-import com.groupproject.bookmarket.responses.MyResponse;
-import com.groupproject.bookmarket.responses.Pagination;
-import com.groupproject.bookmarket.responses.PaginationResponse;
+import com.groupproject.bookmarket.responses.*;
 import com.groupproject.bookmarket.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,6 +35,8 @@ class BookServiceImpl implements BookService {
     private GenreRepository genreRepository;
     @Autowired
     private FilesStorageServiceImpl filesStorageService;
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Override
     public ResponseEntity<PaginationResponse> searchPaginateByTitle(String title, int size, int cPage) {
@@ -196,4 +190,46 @@ class BookServiceImpl implements BookService {
         myResponse.setMessage("Delete books successfully!!");
         return new ResponseEntity<>(myResponse, HttpStatus.OK);
     }
+
+    @Override
+    public List<ListBook> getListBook(int n) {
+        Pageable pageable = PageRequest.of(0, n); // Page số 0, với 'limit' số lượng sách
+        Page<Book> bookPage = bookRepository.findAll(pageable);
+        List<Book> books = bookPage.getContent(); // Lấy nội dung từ Page<Book>
+        return books.stream().map(book -> {
+            ListBook listBook = new ListBook();
+            listBook.setBookId(book.getId());
+            listBook.setBookName(book.getTitle());
+            listBook.setBookPrice(book.getPrice());
+            List<Image> images = imageRepository.findByBookId(book.getId());
+            listBook.setBookImage(images);
+            return listBook;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public DetailBook getDetailBook(Long bookId){
+        Book book = bookRepository.findById(bookId).orElse(null);
+        return (book != null) ? convertDetailBook(book) : null;
+    }
+
+    private DetailBook convertDetailBook(Book book){
+        DetailBook detailBook = new DetailBook();
+        detailBook.setBookId(book.getId());
+        detailBook.setBookTitle(book.getTitle());
+        detailBook.setBookDescription(book.getDescription());
+        detailBook.setBookQuantity(book.getQuantity());
+        detailBook.setBookPrice(book.getPrice());
+        List<Author> author = authorRepository.findAuthorByBooksId(book.getId());
+        detailBook.setBookAuthorList(author);
+        List<Genre> genresList = genreRepository.findByBooksId(book.getId());
+        detailBook.setBookGenres(genresList);
+        List<Image> imageList = imageRepository.findByBookId(book.getId());
+        detailBook.setBookImage(imageList);
+        List<Comment> commentList =commentRepository.findByBookId(book.getId());
+        detailBook.setBookComment(commentList);
+        return detailBook;
+    }
+
+
 }

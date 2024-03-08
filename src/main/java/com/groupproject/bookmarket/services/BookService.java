@@ -3,6 +3,8 @@ package com.groupproject.bookmarket.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.groupproject.bookmarket.models.Book;
 import com.groupproject.bookmarket.models.Image;
+import com.groupproject.bookmarket.responses.DetailBook;
+import com.groupproject.bookmarket.responses.ListBook;
 import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.PaginationResponse;
 import org.springframework.http.ResponseEntity;
@@ -22,4 +24,8 @@ public interface BookService {
     ResponseEntity<List<Image>> fetchAllImagesByBookId(Long bookId);
 
     ResponseEntity<MyResponse> deleteBooks(List<Long> bookIds);
+
+    List<ListBook> getListBook(int limit);
+
+    DetailBook getDetailBook(Long bookId);
 }
