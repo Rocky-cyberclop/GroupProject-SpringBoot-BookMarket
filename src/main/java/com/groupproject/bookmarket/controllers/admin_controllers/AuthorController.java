@@ -2,6 +2,7 @@ package com.groupproject.bookmarket.controllers.admin_controllers;
 
 import com.groupproject.bookmarket.models.Author;
 import com.groupproject.bookmarket.models.Genre;
+import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.PaginationResponse;
 import com.groupproject.bookmarket.services.AuthorService;
 import com.groupproject.bookmarket.services.BookService;
@@ -26,7 +27,22 @@ public class AuthorController {
     }
 
     @GetMapping("/{bookId}")
-    public ResponseEntity<List<Author>> fetchGenreByBookId(@PathVariable("bookId") Long bookId) {
+    public ResponseEntity<List<Author>> fetchAuthorsByBookId(@PathVariable("bookId") Long bookId) {
         return authorService.fetchAuthorsByBookId(bookId);
+    }
+
+    @GetMapping("/info/{authorId}")
+    public ResponseEntity<Author> fetchAuthorInfo(@PathVariable("authorId") Long authorId) {
+        return authorService.fetchAuthorInfo(authorId);
+    }
+
+    @PostMapping
+    public ResponseEntity<MyResponse> addAuthor(@RequestBody Author author) {
+        return authorService.addNewAuthor(author);
+    }
+
+    @PutMapping("/{authorId}")
+    public ResponseEntity<MyResponse> editAuthor(@PathVariable("authorId") Long authorId, @RequestBody Author author) {
+        return authorService.editAuthorInfo(authorId, author);
     }
 }
