@@ -17,7 +17,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Optional<Book> findByTitle(String title);
 
-    Page<Book> findByTitleLikeAndIsDeleteFalse(Pageable pageable, String title);
+    Page<Book> findByTitleLikeIgnoreCaseAndIsDeleteFalse(Pageable pageable, String title);
 
    @Nonnull
     Page<Book> findAll(Pageable pageable);

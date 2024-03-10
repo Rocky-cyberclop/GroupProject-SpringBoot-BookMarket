@@ -6,9 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GenreRepository extends JpaRepository<Genre, Long> {
-    Page<Genre> findByNameLike(Pageable pageable, String name);
+    Page<Genre> findByNameLikeIgnoreCase(Pageable pageable, String name);
+
+    Optional<Genre> findByName(String name);
 
     List<Genre> findByBooksId(Long id);
 }

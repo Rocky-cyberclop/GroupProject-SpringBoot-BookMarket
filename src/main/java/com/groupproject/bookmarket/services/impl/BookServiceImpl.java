@@ -46,7 +46,7 @@ class BookServiceImpl implements BookService {
             title = "%" + title + "%";
         }
         Pageable pageable = PageRequest.of(cPage - 1, size);
-        Page<Book> page = bookRepository.findByTitleLikeAndIsDeleteFalse(pageable, title);
+        Page<Book> page = bookRepository.findByTitleLikeIgnoreCaseAndIsDeleteFalse(pageable, title);
         Pagination pagination = Pagination.builder()
                 .currentPage(cPage)
                 .size(size)
