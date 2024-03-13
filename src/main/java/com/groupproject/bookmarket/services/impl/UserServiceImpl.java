@@ -1,11 +1,25 @@
 package com.groupproject.bookmarket.services.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.groupproject.bookmarket.models.User;
+import com.groupproject.bookmarket.repositories.UserRepository;
+import com.groupproject.bookmarket.services.UserService;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import com.groupproject.bookmarket.dtos.UserDto;
 import com.groupproject.bookmarket.models.Book;
 import com.groupproject.bookmarket.models.User;
 import com.groupproject.bookmarket.repositories.UserRepository;
+import com.groupproject.bookmarket.requests.AuthRequest;
 import com.groupproject.bookmarket.responses.Pagination;
 import com.groupproject.bookmarket.responses.PaginationResponse;
+import com.groupproject.bookmarket.services.CodeTmpService;
 import com.groupproject.bookmarket.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,12 +27,30 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService {
+@RequiredArgsConstructor
+@Transactional
+@Slf4j
+public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private CodeTmpService codeTmpService;
+
+    @Override
+	public User saveUser(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		return userRepository.save(user);
+	}
+
     @Override
     public ResponseEntity<PaginationResponse> searchPaginateUserByFullNameAndEmail(String q, int size, int cPage) {
         if ( q == null || q.isEmpty()) {
@@ -40,4 +72,38 @@ public class UserServiceImpl implements UserService {
                 .build();
         return new ResponseEntity<>(paginationResponse, HttpStatus.OK);
     }
+
+    @Override
+    public boolean addUser(AuthRequest authRequest) {
+        User user = new User();
+        user.setEmail(authRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+        user.setRole("USER");
+        try {
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPass(String code, String mail){
+        if (codeTmpService.validateCode(mail, code)){
+            return ResponseEntity.status(HttpStatus.OK).body("200");
+        }
+        else{
+//			codeTmpService.deleteCode(mail);
+            return ResponseEntity.status(HttpStatus.OK).body("400");
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> changePass(String mail, String newPass){
+        User user = userRepository.findByEmail(mail).get();
+        user.setPassword(passwordEncoder.encode(newPass));
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).body("200");
+    }
+
 }
