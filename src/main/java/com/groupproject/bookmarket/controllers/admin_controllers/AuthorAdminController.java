@@ -1,11 +1,9 @@
 package com.groupproject.bookmarket.controllers.admin_controllers;
 
 import com.groupproject.bookmarket.models.Author;
-import com.groupproject.bookmarket.models.Genre;
 import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.PaginationResponse;
 import com.groupproject.bookmarket.services.AuthorService;
-import com.groupproject.bookmarket.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +13,7 @@ import java.util.List;
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/admin/author")
-public class AuthorController {
+public class AuthorAdminController {
     @Autowired
     private AuthorService authorService;
 

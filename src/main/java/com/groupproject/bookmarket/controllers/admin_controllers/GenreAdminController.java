@@ -1,6 +1,5 @@
 package com.groupproject.bookmarket.controllers.admin_controllers;
 
-import com.groupproject.bookmarket.models.Author;
 import com.groupproject.bookmarket.models.Genre;
 import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.PaginationResponse;
@@ -14,7 +13,7 @@ import java.util.List;
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/admin/genre")
-public class GenreController {
+public class GenreAdminController {
     @Autowired
     private GenreService genreService;
 

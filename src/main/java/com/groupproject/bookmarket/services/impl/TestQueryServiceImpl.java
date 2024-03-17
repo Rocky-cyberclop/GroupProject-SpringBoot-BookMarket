@@ -69,7 +69,7 @@ public class TestQueryServiceImpl implements TestQueryService {
 //        }//This block of code will print no data cause there's no data related in database
         for (DateAndNumberOfBook dateAndNumberOfBook : orderRepository.statisticNumberOfBookSold(
                 LocalDate.of(2018, 1, 1),
-                LocalDate.of(2018, 1, 12))) {
+                LocalDate.of(2023, 1, 30))) {
             System.out.println((dateAndNumberOfBook.getDate()));
             System.out.println((dateAndNumberOfBook.getSumBook()));
         }
@@ -86,8 +86,8 @@ public class TestQueryServiceImpl implements TestQueryService {
 //        }//This block of code will print no data cause there's no data related in database
 
         for (DateAndSales dateAndSales : orderRepository.statisticSaleFromDateToDate(
-                LocalDate.of(2018, 1, 1),
-                LocalDate.of(2023, 1, 1))) {
+                LocalDate.of(2022, 1, 1),
+                LocalDate.now())) {
             System.out.println((dateAndSales.getDate()));
             System.out.println((dateAndSales.getSales()));
         }
@@ -122,7 +122,7 @@ public class TestQueryServiceImpl implements TestQueryService {
         }
     }
 
-    //    @Bean
+//        @Bean
     public void makeIdEqually() {
         Author author = new Author();
         int i = 0;
