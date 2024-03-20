@@ -21,7 +21,7 @@ import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FO
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/admin/book")
-public class BookController {
+public class BookAdminController {
     @Autowired
     private BookService bookService;
 

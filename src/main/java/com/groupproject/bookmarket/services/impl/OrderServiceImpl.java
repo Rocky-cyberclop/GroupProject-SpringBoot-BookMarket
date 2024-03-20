@@ -8,8 +8,12 @@ import com.groupproject.bookmarket.responses.CartResponse;
 import com.groupproject.bookmarket.responses.ErrorResponse;
 import com.groupproject.bookmarket.responses.ListBook;
 import com.groupproject.bookmarket.services.MailService;
+import com.groupproject.bookmarket.responses.*;
 import com.groupproject.bookmarket.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,9 +94,7 @@ public class OrderServiceImpl implements OrderService {
     //// add To Cart without Token
     @Override
     @Transactional
-    public String addToCart(CartRequest cartRequest, Long userId) {
-        Long bookId = cartRequest.getBookId();
-        Integer quantity = cartRequest.getQuantity();
+    public String addToCart(Long userId, Long bookId, Integer quantity) {
         try {
             CartItem existItem = cartItemRepository.findByBookIdAndUserId(bookId, userId);
             if (existItem != null) {
@@ -112,76 +115,48 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-
-    @Transactional
-    public Order checkout(OrderRequest orderRequest, Long userId) {
-        List<CartItem> cartItems = cartItemRepository.findAllById(orderRequest.getCartItemIds());
-        if (cartItems.isEmpty()) {
-            return null;
-        }
-        User user = userRepository.findById(userId).orElseThrow();
-        Order order = new Order();
-        order.setStatus("pending");
-        order.setUser(user);
-        order.setAddress(orderRequest.getAddress());
-        if (orderRequest.getVoucherId() != null) {
-            Voucher voucher = voucherRepository.findById(orderRequest.getVoucherId()).orElseThrow();
-            if (voucher.getQuantity() == 0) {
-                throw new RuntimeException("Voucher is out of stock");
-            }
-            order.setVoucher(voucher);
-        }
-        List<OrderItem> orderItems = new ArrayList<>();
-        for (CartItem cartItem : cartItems) {
-            //                cartItems.stream().map(cartItem -> {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setBook(cartItem.getBook());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPrice(cartItem.getBook().getPrice());
-            orderItem.setOrder(order);
-//            return orderItem;
-            //        }).toList();
-            Book book = cartItem.getBook();
-            int newQuantity = book.getQuantity() - cartItem.getQuantity();
-            if (newQuantity < 0) {
-                throw new RuntimeException("Not enough stock for book: " + book.getTitle());
-            }
-            book.setQuantity(newQuantity);
-            bookRepository.save(book);
-            orderItems.add(orderItem);
-        }
-        order.setOrderItems(orderItems);
-        Order savaOrder = orderRepository.save(order);
-        Payment payment = new Payment();
-        payment.setOrder(savaOrder);
-        payment.setDate(LocalDate.now());
-        payment.setTotal(orderItems.stream().mapToLong(item ->
-                item.getPrice() * item.getQuantity()).sum());
-        payment.setCode(orderRequest.getCode());
-        paymentRepository.save(payment);
-        cartItemRepository.deleteAll(cartItems);
-        return savaOrder;
-    }
-
     @Override
-    @Transactional
-    public ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId) {
-        Order order = checkout(orderRequest, userId);
-        User user = userRepository.findById(orderRequest.getUserId()).orElse(null);
-        if (user != null) {
-            if (order != null) {
-                mailService.sendDetailReceipt(orderRequest, userId);
-                return ResponseEntity.status(HttpStatus.OK).body("Payment successfully");
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Info incorrect");
-            }
+    public ResponseEntity<PaginationResponse> searchPaginateByQ(String q, int size, int cPage) {
+        if (q == null || q.isEmpty()) {
+            q = "%";
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            q = "%" + q + "%";
         }
+        Pageable pageable = PageRequest.of(cPage - 1, size);
+        Page<Order> page = orderRepository.findByAddressLikeOrStatusLike(pageable, q, q);
+        Pagination pagination = Pagination.builder()
+                .currentPage(cPage)
+                .size(size)
+                .totalPage(page.getTotalPages())
+                .totalResult((int) page.getTotalElements())
+                .build();
+        PaginationResponse paginationResponse = PaginationResponse.builder()
+                .data(page.getContent())
+                .pagination(pagination)
+                .build();
+        return new ResponseEntity<>(paginationResponse, HttpStatus.OK);
     }
 
     @Override
-    public List<Order> getOrdersByUser(Long userId) {
-        return orderRepository.findByUserId(userId);
+    public ResponseEntity<MyResponse> updateOrderStatus(Long orderId, Map<String, String> request) {
+        MyResponse myResponse = new MyResponse();
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            myResponse.setMessage("This order is not exist!");
+            myResponse.setRspCode("400");
+            myResponse.setState("error");
+        } else {
+            orderOptional.get().setStatus(request.get("status"));
+            Order updatedOrder = orderRepository.save(orderOptional.get());
+            myResponse.setMessage("Update status success!");
+            myResponse.setData(updatedOrder);
+        }
+        return new ResponseEntity<>(myResponse, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Order> getOrderInfoById(Long orderId) {
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        return orderOptional.map(order -> new ResponseEntity<>(order, HttpStatus.OK)).orElse(null);
     }
 }

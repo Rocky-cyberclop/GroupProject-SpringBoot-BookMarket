@@ -5,8 +5,12 @@ import com.groupproject.bookmarket.requests.CartRequest;
 import com.groupproject.bookmarket.requests.OrderRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
+import com.groupproject.bookmarket.responses.CartResponse;
+import com.groupproject.bookmarket.responses.MyResponse;
+import com.groupproject.bookmarket.responses.PaginationResponse;
+
+import java.util.Map;
 
 public interface OrderService {
 
@@ -14,13 +18,11 @@ public interface OrderService {
 
     //// add To Cart without Token
     @Transactional
-    String addToCart(CartRequest cartRequest, Long userId);
+    String addToCart(Long userId, Long bookId, Integer quantity);
 
-    @Transactional
-    ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
+    ResponseEntity<PaginationResponse> searchPaginateByQ(String q, int size, int cPage);
 
-    List<Order> getOrdersByUser(Long userId);
+    ResponseEntity<MyResponse> updateOrderStatus(Long orderId, Map<String, String> status);
 
-    //// add To Cart without Token
-
+    ResponseEntity<Order> getOrderInfoById(Long orderId);
 }
