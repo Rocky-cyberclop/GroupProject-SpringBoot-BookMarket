@@ -17,12 +17,17 @@ public interface OrderService {
     ResponseEntity<?> getInfoCart(Long userId);
 
     //// add To Cart without Token
-    @Transactional
-    String addToCart(Long userId, Long bookId, Integer quantity);
 
     ResponseEntity<PaginationResponse> searchPaginateByQ(String q, int size, int cPage);
 
     ResponseEntity<MyResponse> updateOrderStatus(Long orderId, Map<String, String> status);
 
     ResponseEntity<Order> getOrderInfoById(Long orderId);
+
+    @Transactional
+    String addToCart(CartRequest cartRequest, Long userId);
+
+    ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
+
+    List<Order> getOrdersByUser(Long userId);
 }

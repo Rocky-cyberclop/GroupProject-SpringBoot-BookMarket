@@ -4,11 +4,8 @@ import com.groupproject.bookmarket.models.*;
 import com.groupproject.bookmarket.repositories.*;
 import com.groupproject.bookmarket.requests.CartRequest;
 import com.groupproject.bookmarket.requests.OrderRequest;
-import com.groupproject.bookmarket.responses.CartResponse;
-import com.groupproject.bookmarket.responses.ErrorResponse;
-import com.groupproject.bookmarket.responses.ListBook;
-import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.responses.*;
+import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -92,28 +89,28 @@ public class OrderServiceImpl implements OrderService {
 
 
     //// add To Cart without Token
-    @Override
-    @Transactional
-    public String addToCart(Long userId, Long bookId, Integer quantity) {
-        try {
-            CartItem existItem = cartItemRepository.findByBookIdAndUserId(bookId, userId);
-            if (existItem != null) {
-                existItem.setQuantity(existItem.getQuantity() + quantity);
-                return "Item add to cart successfully";
-            } else {
-                CartItem cartItem = new CartItem();
-                cartItem.setQuantity(quantity);
-                Book book = bookRepository.findById(bookId).orElseThrow();
-                User user = userRepository.findById(userId).orElseThrow();
-                cartItem.setBook(book);
-                cartItem.setUser(user);
-                cartItemRepository.save(cartItem);
-                return "Item add to cart successfully";
-            }
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
+//    @Override
+//    @Transactional
+//    public String addToCart(Long userId, Long bookId, Integer quantity) {
+//        try {
+//            CartItem existItem = cartItemRepository.findByBookIdAndUserId(bookId, userId);
+//            if (existItem != null) {
+//                existItem.setQuantity(existItem.getQuantity() + quantity);
+//                return "Item add to cart successfully";
+//            } else {
+//                CartItem cartItem = new CartItem();
+//                cartItem.setQuantity(quantity);
+//                Book book = bookRepository.findById(bookId).orElseThrow();
+//                User user = userRepository.findById(userId).orElseThrow();
+//                cartItem.setBook(book);
+//                cartItem.setUser(user);
+//                cartItemRepository.save(cartItem);
+//                return "Item add to cart successfully";
+//            }
+//        } catch (Exception e) {
+//            return e.getMessage();
+//        }
+//    }
 
     @Override
     public ResponseEntity<PaginationResponse> searchPaginateByQ(String q, int size, int cPage) {
@@ -159,4 +156,105 @@ public class OrderServiceImpl implements OrderService {
         Optional<Order> orderOptional = orderRepository.findById(orderId);
         return orderOptional.map(order -> new ResponseEntity<>(order, HttpStatus.OK)).orElse(null);
     }
+
+
+//// add To Cart without Token
+
+    @Override
+    @Transactional
+    public String addToCart(CartRequest cartRequest, Long userId) {
+        Long bookId = cartRequest.getBookId();
+        Integer quantity = cartRequest.getQuantity();
+        try {
+            CartItem existItem = cartItemRepository.findByBookIdAndUserId(bookId, userId);
+            if (existItem != null) {
+                existItem.setQuantity(existItem.getQuantity() + quantity);
+                return "Item add to cart successfully";
+            } else {
+                CartItem cartItem = new CartItem();
+                cartItem.setQuantity(quantity);
+                Book book = bookRepository.findById(bookId).orElseThrow();
+                User user = userRepository.findById(userId).orElseThrow();
+                cartItem.setBook(book);
+                cartItem.setUser(user);
+                cartItemRepository.save(cartItem);
+                return "Item add to cart successfully";
+            }
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+
+    @Transactional
+    public Order checkout(OrderRequest orderRequest, Long userId) {
+        List<CartItem> cartItems = cartItemRepository.findAllById(orderRequest.getCartItemIds());
+        if (cartItems.isEmpty()) {
+            return null;
+        }
+        User user = userRepository.findById(userId).orElseThrow();
+        Order order = new Order();
+        order.setStatus("pending");
+        order.setUser(user);
+        order.setAddress(orderRequest.getAddress());
+        if (orderRequest.getVoucherId() != null) {
+            Voucher voucher = voucherRepository.findById(orderRequest.getVoucherId()).orElseThrow();
+            if (voucher.getQuantity() == 0) {
+                throw new RuntimeException("Voucher is out of stock");
+            }
+            order.setVoucher(voucher);
+        }
+        List<OrderItem> orderItems = new ArrayList<>();
+        for(CartItem cartItem : cartItems){
+            OrderItem orderItem = new OrderItem();
+            orderItem.setBook(cartItem.getBook());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setPrice(cartItem.getBook().getPrice());
+            orderItem.setOrder(order);
+            Book book = cartItem.getBook();
+            int newQuantity = book.getQuantity() - cartItem.getQuantity();
+            if (newQuantity < 0){
+                throw  new RuntimeException("Not enough stock for book: " + book.getTitle());
+            }
+            book.setQuantity(newQuantity);
+            bookRepository.save(book);
+            orderItems.add(orderItem);
+        }
+        order.setOrderItems(orderItems);
+        Order savaOrder = orderRepository.save(order);
+        Payment payment = new Payment();
+        payment.setOrder(savaOrder);
+        payment.setDate(LocalDate.now());
+        payment.setTotal(orderItems.stream().mapToLong(item ->
+                item.getPrice() * item.getQuantity()).sum());
+        payment.setCode(orderRequest.getCode());
+        paymentRepository.save(payment);
+        cartItemRepository.deleteAll(cartItems);
+        return savaOrder;
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId) {
+        Order order = checkout(orderRequest, userId);
+        User user = userRepository.findById(orderRequest.getUserId()).orElse(null);
+        if (user != null) {
+            if (order != null) {
+                mailService.sendDetailReceipt(orderRequest, userId);
+                return ResponseEntity.status(HttpStatus.OK).body("Payment successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Info incorrect");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+    }
+
+    @Override
+    public List<Order> getOrdersByUser(Long userId) {
+        return orderRepository.findByUserId(userId);
+    }
 }
+
+
+

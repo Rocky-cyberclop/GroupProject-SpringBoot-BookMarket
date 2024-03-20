@@ -79,19 +79,19 @@ public class OrderController {
         return orderService.sendReceipt(orderRequest,userOptional.get().getId());
     }
 
-    @GetMapping("/order/{userId}")
-    public List<Order> getOrdersByUser(@RequestHeader(name = "Authorization") String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-
-        }
-        String email = jwtService.extractUsername(token);
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()){
-            throw new RuntimeException("User not found");
-        }
-        return orderService.getOrdersByUser(userOptional.get().getId());
-    }
+//    @GetMapping("/order/{userId}")
+//    public List<Order> getOrdersByUser(@RequestHeader(name = "Authorization") String token) {
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//
+//        }
+//        String email = jwtService.extractUsername(token);
+//        Optional<User> userOptional = userRepository.findByEmail(email);
+//        if (userOptional.isEmpty()){
+//            throw new RuntimeException("User not found");
+//        }
+//        return orderService.getOrderInfoById(userOptional.get().getId());
+//    }
     @GetMapping("/get/fullName")
     public String getFullNameeUser(@RequestHeader(name = "Authorization") String token){
         if (token != null && token.startsWith("Bearer ")) {
