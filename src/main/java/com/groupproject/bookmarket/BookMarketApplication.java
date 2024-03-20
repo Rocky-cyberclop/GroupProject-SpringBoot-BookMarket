@@ -20,13 +20,14 @@ public class BookMarketApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BookMarketApplication.class, args);
+		System.out.println("Done!");
 	}
 	@Bean
 	BCryptPasswordEncoder bCryptPasswordEncoder(){
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
+//	@Bean
 	CommandLineRunner run(UserService userService){
 		return args -> {
 //			User user = new User();
