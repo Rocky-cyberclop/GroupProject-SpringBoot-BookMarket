@@ -1,9 +1,8 @@
-package com.groupproject.bookmarket.Controller;
+package com.groupproject.bookmarket.controllers.user_controllers;
 
 import com.groupproject.bookmarket.dtos.AuthRequest;
 import com.groupproject.bookmarket.dtos.UserDto;
 import com.groupproject.bookmarket.models.User;
-import com.groupproject.bookmarket.payload.ResponseData;
 import com.groupproject.bookmarket.repositories.UserRepository;
 import com.groupproject.bookmarket.services.FileService;
 import com.groupproject.bookmarket.services.JwtService;

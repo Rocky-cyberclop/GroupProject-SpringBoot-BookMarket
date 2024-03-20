@@ -1,4 +1,4 @@
-package com.groupproject.bookmarket.Controller;
+package com.groupproject.bookmarket.controllers.user_controllers;
 
 import com.groupproject.bookmarket.models.MailStructure;
 import com.groupproject.bookmarket.services.MailService;

@@ -18,12 +18,9 @@ import java.util.function.Function;
 public class JwtService {
 
 
-
     private static final String secret = "80599359ba7afec2c78a300933c98b71418856ec5a6b532342b6b81068a0f89006abe9f2c94585c062a2422a401514fc7cd39697936918d3144eb1a49a075bee";
 
 //    private static final String secretString = Base64.getEncoder().encodeToString(secret.getEncoded());
-
-
 
 
     public String extractUsername(String token) {
@@ -58,9 +55,9 @@ public class JwtService {
     }
 
 
-    public String generateToken(String userName, String role){
-        Map<String,Object> claims=new HashMap<>();
-        return createToken(claims,userName, role);
+    public String generateToken(String userName, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userName, role);
     }
 
     private String createToken(Map<String, Object> claims, String userName, String role) {
@@ -74,8 +71,7 @@ public class JwtService {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes= Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 }
