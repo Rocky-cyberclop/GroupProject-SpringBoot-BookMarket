@@ -2,6 +2,12 @@ package com.groupproject.bookmarket.services.impl;
 
 import com.groupproject.bookmarket.models.*;
 import com.groupproject.bookmarket.repositories.*;
+import com.groupproject.bookmarket.requests.CartRequest;
+import com.groupproject.bookmarket.requests.OrderRequest;
+import com.groupproject.bookmarket.responses.CartResponse;
+import com.groupproject.bookmarket.responses.ErrorResponse;
+import com.groupproject.bookmarket.responses.ListBook;
+import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.responses.*;
 import com.groupproject.bookmarket.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,36 +38,55 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ImageRepository imageRepository;
     @Autowired
+    private VoucherRepository voucherRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private MailService mailService;
 
 
     //// get To Cart without Token
     @Override
     public ResponseEntity<?> getInfoCart(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
             ErrorResponse apiError = new ErrorResponse(HttpStatus.NOT_FOUND, "User not found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
+
         List<CartItem> cartItems = cartItemRepository.findCartItemByUserId(userId);
         if (cartItems.isEmpty()) {
             ErrorResponse apiError = new ErrorResponse(HttpStatus.NOT_FOUND, "Cart items not found for this user");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
+
         List<CartResponse> cartResponses = cartItems.stream().map(cartItem -> {
             CartResponse cartResponse = new CartResponse();
             cartResponse.setCartId(cartItem.getId());
             cartResponse.setCartQuantity(cartItem.getQuantity());
-            Book book = bookRepository.findById(cartItem.getId()).get();
+
+            Book book = cartItem.getBook(); // Giả sử bạn đã lấy được Book từ CartItem
+            if (book == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found for cart item id: " + cartItem.getId());
+            }
+
             ListBook bookItem = new ListBook();
             bookItem.setBookId(book.getId());
             bookItem.setBookName(book.getTitle());
             bookItem.setBookPrice(book.getPrice());
+
             List<Image> images = imageRepository.findByBookId(book.getId());
-            bookItem.setBookImage(images);
+            // Giả sử Image có phương thức getUrl() để lấy URL của hình ảnh
+            bookItem.setBookImage(images.stream().map(Image::getUrl).collect(Collectors.toList()));
+
             cartResponse.setBook(bookItem);
             return cartResponse;
         }).collect(Collectors.toList());
+
         return ResponseEntity.status(HttpStatus.OK).body(cartResponses);
     }
 
@@ -71,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
             CartItem existItem = cartItemRepository.findByBookIdAndUserId(bookId, userId);
             if (existItem != null) {
                 existItem.setQuantity(existItem.getQuantity() + quantity);
-                return "200";
+                return "Item add to cart successfully";
             } else {
                 CartItem cartItem = new CartItem();
                 cartItem.setQuantity(quantity);
@@ -80,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
                 cartItem.setBook(book);
                 cartItem.setUser(user);
                 cartItemRepository.save(cartItem);
-                return "200";
+                return "Item add to cart successfully";
             }
         } catch (Exception e) {
             return e.getMessage();

@@ -37,5 +37,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "\torder by payment.date;", nativeQuery = true)
     List<DateAndNumberOfOrder> statisticOrderFromDateToDate(LocalDate from, LocalDate to);
 
+    List<Order> findByUserId(Long userId);
     Page<Order> findByAddressLikeOrStatusLike(Pageable pageable, String address, String status);
 }
