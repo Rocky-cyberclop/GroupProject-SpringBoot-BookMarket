@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupproject.bookmarket.models.*;
 import com.groupproject.bookmarket.repositories.*;
 import com.groupproject.bookmarket.requests.BookRequest;
+import com.groupproject.bookmarket.requests.CommentRequest;
 import com.groupproject.bookmarket.responses.*;
 import com.groupproject.bookmarket.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,12 @@ class BookServiceImpl implements BookService {
     private FilesStorageServiceImpl filesStorageService;
     @Autowired
     private CommentRepository commentRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public ResponseEntity<PaginationResponse> searchPaginateByTitle(String title, int size, int cPage) {
-        if ( title == null || title.isEmpty()) {
+        if (title == null || title.isEmpty()) {
             title = "%";
         } else {
             title = "%" + title + "%";
@@ -202,18 +205,109 @@ class BookServiceImpl implements BookService {
             listBook.setBookName(book.getTitle());
             listBook.setBookPrice(book.getPrice());
             List<Image> images = imageRepository.findByBookId(book.getId());
-            listBook.setBookImage(images);
+            listBook.setBookImage(images.stream().map(Image::getUrl).collect(Collectors.toList()));
             return listBook;
         }).collect(Collectors.toList());
     }
 
+
     @Override
-    public DetailBook getDetailBook(Long bookId){
+    public ResponseEntity<PaginationResponse> getPaginationBook(String title, int size, int currenPage) {
+        if (title == null || title.isEmpty()) {
+            title = "%";
+        } else {
+            title = "%" + title + "%";
+        }
+        Pageable pageable = PageRequest.of(currenPage - 1, size);
+//        Page<Book> bookPage = bookRepository.findAll(pageable);
+        Page<Book> bookPage = bookRepository.findByTitleLikeIgnoreCaseAndIsDeleteFalse(pageable, title);
+        List<ListBook> books = bookPage.getContent().stream().map(book -> {
+            ListBook listBook = new ListBook();
+            listBook.setBookId(book.getId());
+            listBook.setBookName(book.getTitle());
+            listBook.setBookPrice(book.getPrice());
+            List<Image> images = imageRepository.findByBookId(book.getId());
+            listBook.setBookImage(images.stream().map(Image::getUrl).collect(Collectors.toList()));
+            return listBook;
+        }).toList();
+        Pagination pagination = Pagination.builder()
+                .currentPage(currenPage)
+                .size(size)
+                .totalPage(bookPage.getTotalPages())
+                .totalResult((int) bookPage.getTotalElements())
+                .build();
+
+        PaginationResponse paginationResponse = new PaginationResponse();
+        paginationResponse.setData(books);
+        paginationResponse.setPagination(pagination);
+        return ResponseEntity.ok(paginationResponse);
+    }
+
+    @Override
+    public DetailBook getDetailBook(Long bookId) {
         Book book = bookRepository.findById(bookId).orElse(null);
         return (book != null) ? convertDetailBook(book) : null;
     }
 
-    private DetailBook convertDetailBook(Book book){
+    @Override
+    public List<CommentRequest> getComment(Long bookId) {
+        List<Comment> comments = commentRepository.findByBookId(bookId);
+        return comments.stream()
+                .filter(comment -> Boolean.FALSE.equals(comment.getIsDelete()) || comment.getIsDelete() == null)
+                .map(commentItem -> {
+                    CommentRequest comment = new CommentRequest();
+                    comment.setId(commentItem.getId());
+                    comment.setContent(commentItem.getContent());
+                    comment.setRating(commentItem.getRating());
+                    comment.setEmailUser(commentItem.getUser().getEmail());
+                    comment.setFullNameUser(commentItem.getUser().getFullName());
+                    return comment;
+                }).toList();
+    }
+
+    @Override
+    public ResponseEntity<String> addComment(Long bookId, Long userId, Comment comment) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        comment.setBook(book);
+        comment.setUser(user);
+        comment.setIsDelete(false);
+        commentRepository.save(comment);
+        return ResponseEntity.status(HttpStatus.OK).body("Comment Successfully");
+    }
+
+    @Override
+    public ResponseEntity<String> EditComment(Long commentId,CommentRequest commentRequest){
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+        if (comment == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comment Not Found");
+        }
+
+        String newContent = commentRequest.getContent();
+        Short newRating = commentRequest.getRating();
+
+        comment.setRating(newRating);
+        comment.setContent(newContent);
+        commentRepository.save(comment);
+            return ResponseEntity.ok("Comment updated successfully");
+    }
+
+    @Override
+    public ResponseEntity<String> deleteComment(Long commentId){
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+        if (comment!= null){
+            comment.setIsDelete(true);
+            commentRepository.save(comment);
+            return ResponseEntity.status(HttpStatus.OK).body("Delete successfully");
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comment Not Found");
+        }
+    }
+
+    private DetailBook convertDetailBook(Book book) {
         DetailBook detailBook = new DetailBook();
         detailBook.setBookId(book.getId());
         detailBook.setBookTitle(book.getTitle());
@@ -226,7 +320,7 @@ class BookServiceImpl implements BookService {
         detailBook.setBookGenres(genresList);
         List<Image> imageList = imageRepository.findByBookId(book.getId());
         detailBook.setBookImage(imageList);
-        List<Comment> commentList =commentRepository.findByBookId(book.getId());
+        List<Comment> commentList = commentRepository.findByBookId(book.getId());
         detailBook.setBookComment(commentList);
         return detailBook;
     }

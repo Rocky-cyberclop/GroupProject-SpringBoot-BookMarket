@@ -27,9 +27,7 @@ public class BookController {
 
 
     @GetMapping("/search")
-    public ResponseEntity<PaginationResponse> fetchPaginateBookByTitle(@RequestParam(value = "title", required = false, defaultValue = "") String title,
-                                                                       @RequestParam(value = "size", required = false, defaultValue = "6") int size,
-                                                                       @RequestParam(value = "cPage", required = false, defaultValue = "1") int cPage) {
+    public ResponseEntity<PaginationResponse> fetchPaginateBookByTitle(@RequestParam(value = "title", required = false, defaultValue = "") String title, @RequestParam(value = "size", required = false, defaultValue = "6") int size, @RequestParam(value = "cPage", required = false, defaultValue = "1") int cPage) {
         return bookService.searchPaginateByTitle(title, size, cPage);
     }
 

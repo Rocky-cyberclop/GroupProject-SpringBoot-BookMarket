@@ -15,5 +15,5 @@ public class ListBook {
     private  Long bookId;
     private String bookName;
     private Long bookPrice;
-    private List<Image> bookImage;
+    private List<String> bookImage;
 }
