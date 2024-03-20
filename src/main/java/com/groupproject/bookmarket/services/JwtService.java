@@ -19,7 +19,7 @@ public class JwtService {
 
 
 
-    private static final String secret = "quanganhtest12312821893289138912893891289389aaaaaaaaaaaaaaaaaaaaaaaa212312313sdfsdfsdfsdf23423423";
+    private static final String secret = "80599359ba7afec2c78a300933c98b71418856ec5a6b532342b6b81068a0f89006abe9f2c94585c062a2422a401514fc7cd39697936918d3144eb1a49a075bee";
 
 //    private static final String secretString = Base64.getEncoder().encodeToString(secret.getEncoded());
 

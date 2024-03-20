@@ -1,10 +1,14 @@
 package com.groupproject.bookmarket.Controller;
 
 import com.groupproject.bookmarket.dtos.AuthRequest;
+import com.groupproject.bookmarket.dtos.UserDto;
 import com.groupproject.bookmarket.models.User;
+import com.groupproject.bookmarket.payload.ResponseData;
 import com.groupproject.bookmarket.repositories.UserRepository;
+import com.groupproject.bookmarket.services.FileService;
 import com.groupproject.bookmarket.services.JwtService;
-import jakarta.validation.Valid;
+import com.groupproject.bookmarket.services.UserService;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,10 +21,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+@CrossOrigin("*")
 @RestController
+@RequestMapping("/api/user")
 public class LoginController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -28,7 +37,12 @@ public class LoginController {
     private UserRepository repository;
     @Autowired
     private JwtService jwtService;
-    @PostMapping("/authenticate")
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private FileService fileService;
+    @PostMapping("/signin")
     public ResponseEntity<String> authenticateAndGetToken(@RequestBody  AuthRequest authRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
@@ -38,9 +52,6 @@ public class LoginController {
                 Optional<User> user = repository.findByEmail(userDetails.getUsername());
                 String token = jwtService.generateToken(authRequest.getUsername(), user.get().getRole());
                 System.out.println(user.get().getRole());
-
-
-
                 return ResponseEntity.status(HttpStatus.OK).body(token);
             } else {
                 throw new UsernameNotFoundException("Tài khoản hoặc mật khẩu không chính xác");
@@ -54,8 +65,36 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tài khoản hoặc mật khẩu không chính xác");
     }
 
+    @PostMapping( "/signup")
+    public boolean signup(@RequestBody AuthRequest authRequest){
+        return userService.addUser(authRequest);
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<String> changePass(@RequestBody Map<String,String> resData){
+        String password = resData.get("password");
+        String mail = resData.get("username");
+        return userService.changePass(mail,password);
+    }
+
     @GetMapping("/getAllUser")
     public List<User> getAllUser(){
         return repository.findAll();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getProfile(@RequestHeader (name="Authorization") String token){
+        return userService.getProfile(token);
+    }
+
+    @PostMapping("/profile/save")
+    public boolean saveProfile(
+            @RequestParam("username") String userName,
+            @RequestParam("fullname") String fullName,
+            @RequestParam("phone") String phone,
+            @RequestParam("address") String address,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
+            @RequestHeader (name = "Authorization") String token) throws IOException {
+        return userService.saveProfile(userName,fullName,phone,address,avatar,token);
     }
 }

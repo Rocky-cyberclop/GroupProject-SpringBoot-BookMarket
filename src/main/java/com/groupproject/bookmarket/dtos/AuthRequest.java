@@ -9,7 +9,6 @@ import lombok.Data;
 public class AuthRequest {
 
     @NotBlank(message = "Email không được để trống")
-    @Size(min = 5, max = 160, message = "Email phải từ 5 đến 160 ký tự")
     @Email(message = "Email không hợp lệ")
     private String username ;
 

@@ -1,6 +1,7 @@
 package com.groupproject.bookmarket.config;
 
 import com.groupproject.bookmarket.models.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 
 public class UserInfoUserDetails implements UserDetails {
 

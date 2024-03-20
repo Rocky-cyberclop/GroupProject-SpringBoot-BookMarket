@@ -1,6 +1,7 @@
 package com.groupproject.bookmarket.config;
 
 import com.groupproject.bookmarket.Filter.JwtAuthFilter;
+import org.aspectj.weaver.patterns.IToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,13 +45,14 @@ public class SecurityConfig {
         return new UserInfoUserDetailsService();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/authenticate","/refreshToken").permitAll()
+                .requestMatchers("/api/user/**","api/user/signup","/refreshToken","/mail/valid/**","/mail/send/**","/save","/api/user/getAllUser").permitAll()
                 .and()
-                .authorizeHttpRequests().requestMatchers("/**")
+                .authorizeHttpRequests().anyRequest()// cần token để truy cập
                 .authenticated().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -14,16 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.HashSet;
 
 @SpringBootApplication
-@EnableJpaRepositories
-@EnableWebSecurity
 public class BookMarketApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BookMarketApplication.class, args);
-	}
-	@Bean
-	BCryptPasswordEncoder bCryptPasswordEncoder(){
-		return new BCryptPasswordEncoder();
 	}
 
 }
