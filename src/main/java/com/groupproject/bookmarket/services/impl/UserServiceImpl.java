@@ -5,6 +5,7 @@ import com.groupproject.bookmarket.dtos.UserDto;
 import com.groupproject.bookmarket.services.CodeTmpService;
 import com.groupproject.bookmarket.services.JwtService;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +20,11 @@ import com.groupproject.bookmarket.repositories.UserRepository;
 import com.groupproject.bookmarket.services.UserService;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import com.groupproject.bookmarket.dtos.UserDto;
-import com.groupproject.bookmarket.models.Book;
-import com.groupproject.bookmarket.models.User;
-import com.groupproject.bookmarket.repositories.UserRepository;
-import com.groupproject.bookmarket.requests.AuthRequest;
 import com.groupproject.bookmarket.responses.Pagination;
 import com.groupproject.bookmarket.responses.PaginationResponse;
-import com.groupproject.bookmarket.services.CodeTmpService;
-import com.groupproject.bookmarket.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -136,7 +121,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public boolean saveProfile(String username, String fullname, String phone, String address, MultipartFile avatar, String token) throws IOException {
+	public boolean saveProfile(String username, String fullname, String phone, String address, MultipartFile avatar, String token) throws IOException, IOException {
 		if(avatar != null){
 			String email = Authentication(token);
 			User user = userRepository.findByEmail(email).orElse(null);
