@@ -1,5 +1,6 @@
 package com.groupproject.bookmarket.services;
 
+import com.groupproject.bookmarket.models.CartItem;
 import com.groupproject.bookmarket.models.Order;
 import com.groupproject.bookmarket.requests.CartRequest;
 import com.groupproject.bookmarket.requests.OrderRequest;
@@ -28,6 +29,16 @@ public interface OrderService {
     String addToCart(CartRequest cartRequest, Long userId);
 
     ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
+
+    ResponseEntity<?> getDiscountPercentAndIdByCode(String code);
+
+    CartItem incrementQuantity(Long cartItemId);
+
+    // Giảm số lượng của một mục trong giỏ hàng
+    CartItem decrementQuantity(Long cartItemId);
+
+    // Xóa một mục khỏi giỏ hàng
+    void deleteCartItem(Long cartItemId);
 
     List<Order> getOrdersByUser(Long userId);
 }

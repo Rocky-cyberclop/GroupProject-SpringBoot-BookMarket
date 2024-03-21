@@ -1,5 +1,6 @@
 package com.groupproject.bookmarket.services.impl;
 
+import com.groupproject.bookmarket.dtos.VoucherDTO;
 import com.groupproject.bookmarket.models.*;
 import com.groupproject.bookmarket.repositories.*;
 import com.groupproject.bookmarket.requests.CartRequest;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +161,6 @@ public class OrderServiceImpl implements OrderService {
 //// add To Cart without Token
 
     @Override
-    @Transactional
     public String addToCart(CartRequest cartRequest, Long userId) {
         Long bookId = cartRequest.getBookId();
         Integer quantity = cartRequest.getQuantity();
@@ -196,7 +195,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setStatus("pending");
         order.setUser(user);
-        order.setAddress(orderRequest.getAddress());
+        order.setAddress(user.getAddress());
         if (orderRequest.getVoucherId() != null) {
             Voucher voucher = voucherRepository.findById(orderRequest.getVoucherId()).orElseThrow();
             if (voucher.getQuantity() == 0) {
@@ -224,12 +223,12 @@ public class OrderServiceImpl implements OrderService {
         Order savaOrder = orderRepository.save(order);
         Payment payment = new Payment();
         payment.setOrder(savaOrder);
-        payment.setDate(LocalDate.now());
+        payment.setDate(orderRequest.getPaymentDay());
         payment.setTotal(orderItems.stream().mapToLong(item ->
                 item.getPrice() * item.getQuantity()).sum());
         payment.setCode(orderRequest.getCode());
         paymentRepository.save(payment);
-        cartItemRepository.deleteAll(cartItems);
+
         return savaOrder;
     }
 
@@ -237,17 +236,65 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId) {
         Order order = checkout(orderRequest, userId);
-        User user = userRepository.findById(orderRequest.getUserId()).orElse(null);
-        if (user != null) {
             if (order != null) {
                 mailService.sendDetailReceipt(orderRequest, userId);
+                List<CartItem> cartItems = cartItemRepository.findAllById(orderRequest.getCartItemIds());
+                cartItemRepository.deleteAll(cartItems);
                 return ResponseEntity.status(HttpStatus.OK).body("Payment successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Info incorrect");
             }
+
+    }
+    @Override
+    public ResponseEntity<?> getDiscountPercentAndIdByCode(String code) {
+        Voucher voucher = voucherRepository.findByCode(code).orElse(null);
+        if (voucher != null) {
+            if (voucher.getQuantity() > 0) {
+                return ResponseEntity.ok(new VoucherDTO(voucher.getId(), voucher.getPercent()));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher is out of stock");
+            }
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
         }
+    }
+
+    @Override
+    public CartItem incrementQuantity(Long cartItemId) {
+        Optional<CartItem> optionalCartItem = cartItemRepository.findById(cartItemId);
+        if (optionalCartItem.isPresent()) {
+            CartItem cartItem = optionalCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+            return cartItemRepository.save(cartItem);
+        } else {
+            throw new RuntimeException("Cart item not found with id: " + cartItemId);
+        }
+    }
+
+    @Override
+    // Giảm số lượng của một mục trong giỏ hàng
+    public CartItem decrementQuantity(Long cartItemId) {
+        Optional<CartItem> optionalCartItem = cartItemRepository.findById(cartItemId);
+        if (optionalCartItem.isPresent()) {
+            CartItem cartItem = optionalCartItem.get();
+            if (cartItem.getQuantity() > 1) {
+                cartItem.setQuantity(cartItem.getQuantity() - 1);
+                return cartItemRepository.save(cartItem);
+            } else {
+                // Nếu số lượng là 1 thì xóa mục khỏi giỏ hàng
+                cartItemRepository.deleteById(cartItemId);
+                return null; // Hoặc bạn có thể trả về một đối tượng khác để thể hiện rằng mục đã bị xóa
+            }
+        } else {
+            throw new RuntimeException("Cart item not found with id: " + cartItemId);
+        }
+    }
+
+    @Override
+    // Xóa một mục khỏi giỏ hàng
+    public void deleteCartItem(Long cartItemId) {
+        cartItemRepository.deleteById(cartItemId);
     }
 
     @Override
