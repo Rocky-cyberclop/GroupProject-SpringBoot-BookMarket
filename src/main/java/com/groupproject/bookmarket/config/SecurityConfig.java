@@ -47,7 +47,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/user/signin","/api/user/signup","/refreshToken","/mail/valid/**","/mail/send/**","/api/user/save")
+                        req.requestMatchers(
+                            "/api/user/get/fullName/**",
+                            "/api/user/book/comment/add/**",
+                            "/api/user/book/comment/delete/**",
+                            "/api/user/book/comment/edit/**",
+                            "/api/user/book/pagination/**",
+                            "/api/user/**",
+                            "/api/user/cart/info/**",
+                            "/api/user/signup",
+                            "/api/v1/admin/**",
+                            "/refreshToken",
+                            "/mail/valid/**",
+                            "/mail/send/**",
+                            "/api/user/save",
+                            "/api/user/signin",
+                            "/api/user/signup", 
+                            "/api/v1/admin/**",
+                            "/refreshToken",
+                            "/mail/valid/**",
+                            "/mail/send/**",
+                            "/api/user/save")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

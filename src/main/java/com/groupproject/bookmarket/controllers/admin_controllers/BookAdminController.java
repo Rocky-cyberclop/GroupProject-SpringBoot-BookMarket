@@ -21,15 +21,13 @@ import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FO
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/admin/book")
-public class BookController {
+public class BookAdminController {
     @Autowired
     private BookService bookService;
 
 
     @GetMapping("/search")
-    public ResponseEntity<PaginationResponse> fetchPaginateBookByTitle(@RequestParam(value = "title", required = false, defaultValue = "") String title,
-                                                                       @RequestParam(value = "size", required = false, defaultValue = "6") int size,
-                                                                       @RequestParam(value = "cPage", required = false, defaultValue = "1") int cPage) {
+    public ResponseEntity<PaginationResponse> fetchPaginateBookByTitle(@RequestParam(value = "title", required = false, defaultValue = "") String title, @RequestParam(value = "size", required = false, defaultValue = "6") int size, @RequestParam(value = "cPage", required = false, defaultValue = "1") int cPage) {
         return bookService.searchPaginateByTitle(title, size, cPage);
     }
 

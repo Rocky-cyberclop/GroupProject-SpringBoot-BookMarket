@@ -2,7 +2,9 @@ package com.groupproject.bookmarket.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.groupproject.bookmarket.models.Book;
+import com.groupproject.bookmarket.models.Comment;
 import com.groupproject.bookmarket.models.Image;
+import com.groupproject.bookmarket.requests.CommentRequest;
 import com.groupproject.bookmarket.responses.DetailBook;
 import com.groupproject.bookmarket.responses.ListBook;
 import com.groupproject.bookmarket.responses.MyResponse;
@@ -27,5 +29,16 @@ public interface BookService {
 
     List<ListBook> getListBook(int limit);
 
+
+    ResponseEntity<PaginationResponse> getPaginationBook(String title, int size, int currenPage);
+
     DetailBook getDetailBook(Long bookId);
+
+    List<CommentRequest> getComment(Long bookId);
+
+    ResponseEntity<String> addComment(Long bookId, Long userId, Comment comment);
+
+    ResponseEntity<String> EditComment(Long commentId, CommentRequest commentRequest);
+
+    ResponseEntity<String> deleteComment(Long commentId);
 }
