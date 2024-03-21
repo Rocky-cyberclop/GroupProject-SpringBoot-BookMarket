@@ -111,6 +111,12 @@ public class TestQueryServiceImpl implements TestQueryService {
         }
     }
 
+    @Override
+//    @Bean
+    public void testQuerySelectEmailsToSend() {
+        System.out.println(orderRepository.getMailsSendVoucher());
+    }
+
 
     @Override
 //    @Bean
