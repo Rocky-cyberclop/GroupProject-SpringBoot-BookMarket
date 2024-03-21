@@ -1,5 +1,6 @@
 package com.groupproject.bookmarket.controllers.user_controllers;
 
+import com.groupproject.bookmarket.models.MailStructure;
 import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
