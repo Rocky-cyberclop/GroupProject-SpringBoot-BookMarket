@@ -66,7 +66,7 @@ public class JwtService {
                 .setSubject(userName)
                 .claim("role", role) // Thêm vai trò vào claim
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000000 * 60 * 30))
                 .signWith(getSignKey(), SignatureAlgorithm.HS512).compact();
     }
 

@@ -95,6 +95,7 @@ public class MailService {
 
     public OrderSummary getOrderSummary(OrderRequest orderRequest) {
         List<CartItem> cartItems = cartItemRepository.findAllById(orderRequest.getCartItemIds());
+        System.out.println("cartItems" + orderRequest.getCartItemIds());
         if (cartItems.isEmpty()) {
             return null;
         }
@@ -110,7 +111,9 @@ public class MailService {
         int totalQuantity = itemSummaries.stream()
                 .mapToInt(ItemSummary::getQuantity)
                 .sum();
-
+        System.out.println("totalAmount" + totalAmount);
+        System.out.println("totalQuantity" + totalQuantity);
+        System.out.println("itemSummaries" + itemSummaries);
         return new OrderSummary(itemSummaries, totalAmount, totalQuantity);
     }
 }

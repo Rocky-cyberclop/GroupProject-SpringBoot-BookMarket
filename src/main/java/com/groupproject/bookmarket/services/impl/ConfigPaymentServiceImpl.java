@@ -1,5 +1,6 @@
 package com.groupproject.bookmarket.services.impl;
 
+import com.groupproject.bookmarket.dtos.VnpPaymentDTO;
 import com.groupproject.bookmarket.responses.MessageResponse;
 import com.groupproject.bookmarket.responses.PaymentInfoResponse;
 import com.groupproject.bookmarket.services.ConfigPaymenntService;
@@ -17,9 +18,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -44,9 +44,9 @@ public class ConfigPaymentServiceImpl implements ConfigPaymenntService {
     }
 
 
-        @Override
-    @Cacheable(value = "TxRef", key = "#username")
-    public ResponseEntity<MessageResponse> createUrlPayment(String username, Double totalPrice) throws UnsupportedEncodingException {
+    @Override
+    @Cacheable(value = "TxRef", key = "#email")
+    public ResponseEntity<MessageResponse> createUrlPayment(String email, Double totalPrice) throws UnsupportedEncodingException {
 
         int amount = totalPrice.intValue() * 100;
         String oderInfo = "Payment Book";
@@ -60,8 +60,8 @@ public class ConfigPaymentServiceImpl implements ConfigPaymenntService {
         // add code TxnRef to redis
         String codeTxRef = initTxRef();
         urlParams.put("vnp_TxnRef", codeTxRef);
-        redisTemplate.opsForValue().set(username, codeTxRef, 10, TimeUnit.MINUTES);
-
+        redisTemplate.opsForValue().set(email, codeTxRef, 20, TimeUnit.MINUTES);
+        System.out.println(codeTxRef);
         urlParams.put("vnp_OrderInfo", oderInfo);
         urlParams.put("vnp_OrderType", orderType);
         urlParams.put("vnp_Locale", location);
@@ -110,58 +110,60 @@ public class ConfigPaymentServiceImpl implements ConfigPaymenntService {
 
 
     @Override
-    public ResponseEntity<?> handlePaymentResult(@RequestBody Map<String, String> requestData) {
+    public ResponseEntity<?> handlePaymentResult(@RequestBody VnpPaymentDTO requestData, String email) {
 
         StringBuilder hashData = new StringBuilder();
         String vnp_SecureHash = hmacSHA512("WMSXYGCIRXCTNIBMUMWGDCFBVZMNZEPW", hashData.toString());
-        String vnpSecureHash = requestData.get("vnp_SecureHash");
-        String orderInfo = requestData.get("vnp_OrderInfo");
-        String vnpResponseCode = requestData.get("vnp_ResponseCode");
-        String vnpTxnRefResponse = requestData.get("vnp_TxnRef");
-        String vnpTmnCode = requestData.get("vnp_TmnCode");
-        String vnpBankTranNo = requestData.get("vnp_BankTranNo");
-        String vpnBankCode = requestData.get("vnp_BankCode");
-        String vnp_PayDate = requestData.get("vnp_PayDate");
+        String vnpSecureHash = requestData.getVnp_SecureHash();
+        String orderInfo = requestData.getVnp_OrderInfo();
+        String vnpResponseCode = requestData.getVnp_ResponseCode();
+        String vnpTxnRefResponse = requestData.getVnp_TxnRef();
+        String vnpTmnCode = requestData.getVnp_TmnCode();
+        String vnpBankTranNo = requestData.getVnp_BankTranNo();
+        String vpnBankCode = requestData.getVnp_BankCode();
+        String vnp_PayDate = requestData.getVnp_PayDate();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         // Chuyển đổi chuỗi sang LocalDateTime
-        LocalDateTime payDayFormat = LocalDateTime.parse(vnp_PayDate, formatter);
-
+        LocalDate payDayFormat = LocalDate.parse(vnp_PayDate, formatter);
         //  xử lý múi giờ,  chuyển đổi LocalDateTime sang ZonedDateTime
         ZoneId zoneId = ZoneId.of("Etc/GMT-7");
-        ZonedDateTime payDayZonedDateTime = payDayFormat.atZone(zoneId);
-
+//        ZonedDateTime payDayZonedDateTime = payDayFormat.atZone(zoneId);
 //        System.out.println("LocalDateTime: " + localDateTime);
 //        System.out.println("ZonedDateTime: " + zonedDateTime);
-        String username = requestData.get("username");
 
         if (vnpResponseCode.equals("00")) {
-            if (!vnpSecureHash.equals(vnp_SecureHash)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vnp_SecureHash incorrect");
-            }
+//            if (!vnpSecureHash.equals(vnp_SecureHash)) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vnp_SecureHash incorrect");
+//            }
             if (!vnpTmnCode.equals(tmnCode)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vnp_TmnCode incorrect");
+                return ResponseEntity.status(HttpStatus.OK).body("vnp_TmnCode incorrect");
             }
             if (vnpBankTranNo.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vnp_BankTranNo is null");
+                return ResponseEntity.status(HttpStatus.OK).body("vnp_BankTranNo is null");
             }
             if (vpnBankCode.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vnp_BankCode is null");
+                return ResponseEntity.status(HttpStatus.OK).body("vnp_BankCode is null");
             }
+
             // CHECK TxnRef
-            String codeTxnRefFromRedis = redisTemplate.opsForValue().get(username);
+            String codeTxnRefFromRedis = redisTemplate.opsForValue().get(email);
+            System.out.println(codeTxnRefFromRedis);
+            System.out.println(vnpTxnRefResponse);
             if (vnpTxnRefResponse != null && vnpTxnRefResponse.equals(codeTxnRefFromRedis)) {
                 PaymentInfoResponse paymentInfoResponse = new PaymentInfoResponse();
                 paymentInfoResponse.setOrderInfo(orderInfo);
-                paymentInfoResponse.setBankCode(vpnBankCode);
+                paymentInfoResponse.setBankCode(vnpTxnRefResponse);
                 paymentInfoResponse.setBankTranNo(vnpBankTranNo);
                 paymentInfoResponse.setPayDay(payDayFormat);
-                redisTemplate.delete(username);
-                return ResponseEntity.status(HttpStatus.OK).body(payDayZonedDateTime);
+                paymentInfoResponse.setMessage("success");
+                paymentInfoResponse.setResCode("200");
+//                redisTemplate.delete(email);
+                return ResponseEntity.status(HttpStatus.OK).body(paymentInfoResponse);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vnp_TxnRef code is incorrect");
+                return ResponseEntity.status(HttpStatus.OK).body("vnp_TxnRef code is incorrect");
             }
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment Failed");
+            return ResponseEntity.status(HttpStatus.OK).body("Payment Failed");
         }
     }
 
