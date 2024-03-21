@@ -1,6 +1,5 @@
 package com.groupproject.bookmarket.Filter;
 
-
 import com.groupproject.bookmarket.config.UserInfoUserDetailsService;
 import com.groupproject.bookmarket.services.JwtService;
 import jakarta.servlet.FilterChain;

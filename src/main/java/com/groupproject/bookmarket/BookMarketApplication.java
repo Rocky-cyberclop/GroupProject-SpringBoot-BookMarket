@@ -8,8 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
-@EnableJpaRepositories
-@EnableWebSecurity
 public class BookMarketApplication {
 
 	public static void main(String[] args) {
