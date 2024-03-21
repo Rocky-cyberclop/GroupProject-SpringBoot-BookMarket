@@ -7,4 +7,5 @@ public interface TestQueryService {
     public void testQuerySelectSalesFromTo();
     public void testQuerySelectSalesFromFirstDateOfMonthToNow();
     public void testQuerySelectOrdersFromFirstDateOfMonthToNow();
+    public void testQuerySelectEmailsToSend();
 }
