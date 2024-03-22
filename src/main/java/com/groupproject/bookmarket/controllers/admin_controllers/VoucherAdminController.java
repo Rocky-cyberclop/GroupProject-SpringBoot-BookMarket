@@ -1,12 +1,17 @@
 package com.groupproject.bookmarket.controllers.admin_controllers;
 
 import com.groupproject.bookmarket.models.Voucher;
+import com.groupproject.bookmarket.requests.AddNewVoucherRequest;
 import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.PaginationResponse;
+import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.services.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.Context;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -14,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class VoucherAdminController {
     @Autowired
     private VoucherService voucherService;
+    @Autowired
+    private MailService mailService;
 
     @GetMapping("/search")
     public ResponseEntity<PaginationResponse> fetchPaginateVoucherByCode(@RequestParam(value = "code", required = false, defaultValue = "") String code,
@@ -28,8 +35,8 @@ public class VoucherAdminController {
     }
 
     @PostMapping
-    public ResponseEntity<MyResponse> addNewVoucher(@RequestBody Voucher voucher) {
-        return voucherService.addNewVoucher(voucher);
+    public ResponseEntity<MyResponse> addNewVoucher(@RequestBody AddNewVoucherRequest request) {
+        return voucherService.addNewVoucher(request);
     }
 
     @PutMapping("/{voucherId}")
