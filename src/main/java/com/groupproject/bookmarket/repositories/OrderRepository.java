@@ -39,4 +39,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserId(Long userId);
     Page<Order> findByAddressLikeOrStatusLike(Pageable pageable, String address, String status);
+
+    @Query(value = "SELECT b.email\n" +
+            "\tFROM public.receipt a, public.customer b\n" +
+            "\twhere a.user_id = b.id\n" +
+            "\torder by a.id desc\n" +
+            "\tlimit 10;", nativeQuery = true)
+    List<String> getMailsSendVoucher();
 }
