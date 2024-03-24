@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
     @Autowired
     private JwtAuthFilter authFilter;
 
@@ -36,31 +37,35 @@ public class SecurityConfig {
         return new UserInfoUserDetailsService();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(
-                            "/api/user/get/fullName/**",
-                            "/api/user/book/comment/add/**",
-                            "/api/user/book/comment/delete/**",
-                            "/api/user/book/comment/edit/**",
-                            "/api/user/book/pagination/**",
-                            "/api/user/**",
-                            "/api/user/cart/info/**",
-                            "/api/user/signup",
-                            "/api/v1/admin/**",
-                            "/refreshToken",
-                            "/mail/valid/**",
-                            "/mail/send/**",
-                            "/api/user/save",
-                            "/api/user/signin",
-                            "/api/user/signup", 
-                            "/api/v1/admin/**",
-                            "/refreshToken",
-                            "/mail/valid/**",
-                            "/mail/send/**",
-                            "/api/user/save")
+                                        "/api/user/get/fullName/**",
+                                        "/api/user/book/comment/add/**",
+                                        "/api/user/book/comment/delete/**",
+                                        "/api/user/book/comment/edit/**",
+                                        "/api/user/book/pagination/**",
+                                        "/api/user/checkout/createUrl/**",
+                                        "/api/user/checkout/checkResponse/**",
+                                        "/api/user/voucher/**",
+                                        "/api/user/cart/info/**",
+                                        "/api/user/signup",
+                                        "/api/v1/admin/**",
+                                        "/refreshToken",
+                                        "/mail/valid/**",
+                                        "/mail/send/**",
+                                        "/api/user/save",
+                                        "/api/user/signin",
+                                        "/api/user/signup",
+                                        "/api/v1/admin/**",
+                                        "/refreshToken",
+                                        "/mail/valid/**",
+                                        "/mail/send/**",
+                                        "/api/user/**",
+                                        "/api/user/save")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
@@ -79,12 +84,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+        /* HTML5 display-role reset for older browsers */
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        section {
+            display: block;
+        }
+        body {
+            line-height: 1;
+        }
+        ol,
+        ul {
+            list-style: none;
+        }
+        blockquote,
+        q {
+            quotes: none;
+        }
+        blockquote:before,
+        blockquote:after,
+        q:before,
+        q:after {
+            content: '';
+            content: none;
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        .wrapper {
+            width: 100%;
+        }
+
+        .code-label {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+            font-weight: 100;
+        }
+
+        .code {
+            padding-bottom: 0.5rem;
+            border-bottom-width: 1px;
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+            font-weight: 700;
+        }
+
+        .discount {
+            font-size: 1.2rem;
+            line-height: 2.25rem;
+            font-weight: 700;
+        }
+
+        @media (min-width: 768px) {
+            .wrapper {
+                width: 66.666667%;
+            }
+
+            .code-label {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+
+            .code {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+
+            .discount {
+                font-size: 3rem;
+                line-height: 1;
+            }
+        }
+        @media (min-width: 1024px) {
+            .wrapper {
+                width: 50%;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div style="padding-bottom: 1.75rem; margin-bottom: 2.5rem; border-bottom-width: 1px; border-style: dashed">
+        <h1 style="font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; text-align: center">
+            <span style="color: #3b82f6">B</span>ook Store
+        </h1>
+        <p style="margin-bottom: 1.25rem">
+            Xin chào <span style="font-style: italic; color: #3b82f6" th:text="${username}">pitithuong,</span>
+        </p>
+        <p style="margin-bottom: 1.25rem">
+            Tôi mong rằng email này đến được với bạn trong tình trạng sức khỏe tốt và niềm vui luôn đồng hành.
+            Đầu tiên, tôi muốn dành thời gian này để bày tỏ lòng biết ơn chân thành của chúng tôi đối với sự ủng
+            hộ và lòng tin tưởng mà bạn đã dành cho chúng tôi suốt thời gian qua.
+        </p>
+        <p style="margin-bottom: 1.25rem">
+            Như một biểu hiện của sự biết ơn, chúng tôi muốn gửi đến bạn một phần quà nhỏ – một voucher dành
+            tặng riêng mà bạn có thể sử dụng cho bất kỳ sản phẩm hoặc dịch vụ nào mà chúng tôi cung cấp. Chúng
+            tôi hy vọng rằng điều này sẽ thể hiện sự tri ân chân thành của chúng tôi đối với sự ủng hộ của bạn.
+        </p>
+        <a
+                href="https://www.youtube.com/watch?v=C3GouGa0noM"
+                style="
+                        display: inline-flex;
+                        padding-top: 0.625rem;
+                        padding-bottom: 0.625rem;
+                        padding-left: 1.25rem;
+                        padding-right: 1.25rem;
+                        align-items: center;
+                        border-radius: 0.5rem;
+                        font-size: 0.875rem;
+                        line-height: 1.25rem;
+                        font-weight: 500;
+                        text-align: center;
+                        color: #ffffff;
+                        background-color: #1d4ed8;
+                    "
+        >
+            Shop now
+            <svg
+                    style="margin-left: 10px; width: 0.875rem; height: 0.875rem"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 14 10"
+            >
+                <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M1 5h12m0 0L9 1m4 4L9 9"
+                />
+            </svg>
+        </a>
+    </div>
+
+    <div
+            style="
+                    display: flex;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                "
+    >
+        <div
+                style="
+                        display: flex;
+                        padding: 1.25rem;
+                        flex-direction: column;
+                        justify-content: space-around;
+                        width: 65%;
+                    "
+        >
+            <div style="color: #60a5fa">
+                <p class="code-label">CODE</p>
+                <p class="code" th:text="${code}">GSD9798FDSD</p>
+                <div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.25rem">
+                    <p>Term and condition</p>
+                    <ul
+                            style="
+                                    padding-left: 1.25rem;
+                                    font-size: 0.75rem;
+                                    line-height: 1rem;
+                                    list-style-type: disc;
+                                "
+                    >
+                        <li style="margin-top: 0.25rem">This voucher can be used with all of our products.</li>
+                        <li style="margin-top: 0.25rem">
+                            You just need to find the voucher or type the voucher code when checking out to
+                            receive the discount.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div
+                style="
+                        padding: 1.25rem;
+                        width: 35%;
+                        color: #777;
+                        background: #60a5fa;
+                        color: white;
+                        border-radius: 10px;
+                        text-align: center;
+                    "
+        >
+            <p style="font-size: 0.875rem; line-height: 1.25rem; font-style: italic; text-align: right">
+                Valid until December 2024
+            </p>
+            <div style="justify-content: center; align-items: center; margin-top: 3rem">
+                <p style="font-size: 0.7rem">DISCOUNT OFF</p>
+                <p class="discount" th:text="${discount} + '&#8363;'">100.000 &#8363;</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

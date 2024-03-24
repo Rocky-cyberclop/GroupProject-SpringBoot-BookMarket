@@ -1,10 +1,15 @@
 package com.groupproject.bookmarket.services.impl;
 
+import com.groupproject.bookmarket.models.User;
 import com.groupproject.bookmarket.models.Voucher;
+import com.groupproject.bookmarket.repositories.OrderRepository;
+import com.groupproject.bookmarket.repositories.UserRepository;
 import com.groupproject.bookmarket.repositories.VoucherRepository;
+import com.groupproject.bookmarket.requests.AddNewVoucherRequest;
 import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.Pagination;
 import com.groupproject.bookmarket.responses.PaginationResponse;
+import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.services.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,13 +19,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
     @Autowired
     private VoucherRepository voucherRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private MailService mailService;
 
     @Override
     public ResponseEntity<PaginationResponse> searchPaginateByCode(String code, int size, int cPage) {
@@ -46,12 +57,25 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     @Transactional
-    public ResponseEntity<MyResponse> addNewVoucher(Voucher voucher) {
+    public ResponseEntity<MyResponse> addNewVoucher(AddNewVoucherRequest request) {
         MyResponse myResponse = new MyResponse();
-        Optional<Voucher> existVoucher = voucherRepository.findByCode(voucher.getCode());
+        Optional<Voucher> existVoucher = voucherRepository.findByCode(request.getVoucher().getCode());
         if (existVoucher.isEmpty()) {
-            voucherRepository.save(voucher);
+            voucherRepository.save(request.getVoucher());
             myResponse.setMessage("Add new voucher successfully!");
+
+            if(request.isLoyalProgram()) {
+                Context context = new Context();
+                context.setVariable("code", request.getVoucher().getCode());
+                context.setVariable("discount", request.getVoucher().getHighestRate());
+
+                List<String> listLoyalUsers = orderRepository.getMailsSendVoucher();
+                listLoyalUsers.forEach(loyalUser -> {
+                    context.setVariable("username", loyalUser);
+                    mailService.sendEmailWithHtmlTemplate(loyalUser, "Loyalty program", "mail", context);
+                });
+                System.out.println("Send mail");
+            }
         } else {
             myResponse.setMessage("This voucher code is already existed!!!");
             myResponse.setState("error");

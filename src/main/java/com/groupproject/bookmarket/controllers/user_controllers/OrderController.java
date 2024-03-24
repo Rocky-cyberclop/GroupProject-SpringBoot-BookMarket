@@ -1,6 +1,9 @@
 package com.groupproject.bookmarket.controllers.user_controllers;
 
 import com.groupproject.bookmarket.dtos.OrderHistoryDto;
+import com.groupproject.bookmarket.dtos.TotalPricedto;
+import com.groupproject.bookmarket.dtos.VnpPaymentDTO;
+import com.groupproject.bookmarket.models.CartItem;
 import com.groupproject.bookmarket.models.Order;
 import com.groupproject.bookmarket.models.User;
 import com.groupproject.bookmarket.repositories.UserRepository;
@@ -11,6 +14,7 @@ import com.groupproject.bookmarket.services.ConfigPaymenntService;
 import com.groupproject.bookmarket.services.JwtService;
 import com.groupproject.bookmarket.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,27 +60,27 @@ public class OrderController {
         if (userOptional.isEmpty()){
             throw new RuntimeException("User not found");
         }
+//        System.out.println(cartRequest.getQuantity());
         return orderService.addToCart(cartRequest,userOptional.get().getId());
     }
 
 
-    @PostMapping("cart/checkout")
+    @PostMapping("/cart/checkout")
     public ResponseEntity<String> checkOut(@RequestBody OrderRequest orderRequest,@RequestHeader(name = "Authorization") String token){
-        System.out.println(orderRequest.getUserId());
+
         System.out.println(orderRequest.getCartItemIds());
         System.out.println(orderRequest.getVoucherId());
-        System.out.println(orderRequest.getAddress());
+//        System.out.println(orderRequest.getAddress());
         System.out.println(orderRequest.getCode());
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-
         }
         String email = jwtService.extractUsername(token);
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isEmpty()){
             throw new RuntimeException("User not found");
         }
-//        return ResponseEntity.ok("Call function check out");
+                System.out.println("User id" + userOptional.get().getId());
         return orderService.sendReceipt(orderRequest,userOptional.get().getId());
     }
 
@@ -97,8 +101,10 @@ public class OrderController {
         }
         return userOptional.get().getFullName();
     }
-    @GetMapping("/checkout/createUrl")
-    public ResponseEntity<MessageResponse> createUrlPayment(@RequestHeader(name = "Authorization") String token,Double totalPrice) throws UnsupportedEncodingException {
+    @PostMapping("/checkout/createUrl")
+    public ResponseEntity<MessageResponse> createUrlPayment(@RequestBody TotalPricedto totalPricedto, @RequestHeader(name = "Authorization") String token) throws UnsupportedEncodingException {
+//        System.out.println(totalPricedto.getTotalPrice());
+//        System.out.println(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
@@ -107,11 +113,42 @@ public class OrderController {
         if (userOptional.isEmpty()){
             throw new RuntimeException("User not found");
         }
-        return configPaymenntService.createUrlPayment(userOptional.get().getUsername(),totalPrice);
+        return configPaymenntService.createUrlPayment(userOptional.get().getEmail(),totalPricedto.getTotalPrice());
     }
-    @GetMapping("/checkout/checkResponse")
-    public ResponseEntity<?> createUrlPayment(@RequestBody Map<String,String> requestData) {
-        return configPaymenntService.handlePaymentResult(requestData);
+    @PostMapping("/checkout/checkResponse")
+    public ResponseEntity<?> createUrlPayment(@RequestBody VnpPaymentDTO requestData, @RequestHeader(name = "Authorization") String token ) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String email = jwtService.extractUsername(token);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()){
+            throw new RuntimeException("User not found");
+        }
+        return configPaymenntService.handlePaymentResult(requestData,userOptional.get().getEmail());
     }
 
+    @GetMapping("voucher/{code}")
+    public  ResponseEntity<?> getDiscountPercentAndIdByCode(@PathVariable String code){
+        return orderService.getDiscountPercentAndIdByCode(code);
+    }
+
+    @PutMapping("/{cartItemId}/increment")
+    public ResponseEntity<CartItem> incrementQuantity(@PathVariable Long cartItemId) {
+        CartItem updatedCartItem = orderService.incrementQuantity(cartItemId);
+        return new ResponseEntity<>(updatedCartItem, HttpStatus.OK);
+    }
+    // giảm số lượng
+    @PutMapping("/{cartItemId}/decrement")
+    public ResponseEntity<CartItem> decrementQuantity(@PathVariable Long cartItemId) {
+        CartItem updatedCartItem = orderService.decrementQuantity(cartItemId);
+        return new ResponseEntity<>(updatedCartItem, HttpStatus.OK);
+    }
+
+    //  xóa một mục khỏi giỏ hàng
+    @DeleteMapping("/{cartItemId}")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Long cartItemId) {
+        orderService.deleteCartItem(cartItemId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

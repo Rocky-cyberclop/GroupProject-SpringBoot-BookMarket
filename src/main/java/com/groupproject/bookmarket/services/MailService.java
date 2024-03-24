@@ -12,6 +12,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,28 @@ public class MailService {
     private CartItemRepository cartItemRepository;
     @Value("${spring.mail.username}")
     private String fromMail;
+    private final TemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+
+    public MailService(TemplateEngine templateEngine, JavaMailSender mailSender) {
+        this.templateEngine = templateEngine;
+        this.mailSender = mailSender;
+    }
+
+    public void sendEmailWithHtmlTemplate(String to, String subject, String templateName, Context context) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
+
+        try {
+            helper.setTo(to);
+            helper.setSubject(subject);
+            String htmlContent = templateEngine.process(templateName, context);
+            helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            // Handle exception
+        }
+    }
 
 
     public void sendMail(String mail) {
@@ -95,6 +119,7 @@ public class MailService {
 
     public OrderSummary getOrderSummary(OrderRequest orderRequest) {
         List<CartItem> cartItems = cartItemRepository.findAllById(orderRequest.getCartItemIds());
+        System.out.println("cartItems" + orderRequest.getCartItemIds());
         if (cartItems.isEmpty()) {
             return null;
         }
@@ -110,7 +135,9 @@ public class MailService {
         int totalQuantity = itemSummaries.stream()
                 .mapToInt(ItemSummary::getQuantity)
                 .sum();
-
+        System.out.println("totalAmount" + totalAmount);
+        System.out.println("totalQuantity" + totalQuantity);
+        System.out.println("itemSummaries" + itemSummaries);
         return new OrderSummary(itemSummaries, totalAmount, totalQuantity);
     }
 }
