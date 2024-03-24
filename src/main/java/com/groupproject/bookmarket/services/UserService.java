@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Service
 public interface UserService {
 
 	boolean addUser (AuthRequest authRequest);
