@@ -1,5 +1,9 @@
 package com.groupproject.bookmarket.services.impl;
 
+import com.groupproject.bookmarket.dtos.BookDto;
+import com.groupproject.bookmarket.dtos.OrderHistoryDto;
+import com.groupproject.bookmarket.dtos.OrderItemDto;
+import com.groupproject.bookmarket.dtos.PaymentDto;
 import com.groupproject.bookmarket.models.*;
 import com.groupproject.bookmarket.repositories.*;
 import com.groupproject.bookmarket.requests.CartRequest;
@@ -7,6 +11,7 @@ import com.groupproject.bookmarket.requests.OrderRequest;
 import com.groupproject.bookmarket.responses.*;
 import com.groupproject.bookmarket.services.MailService;
 import com.groupproject.bookmarket.services.OrderService;
+import com.groupproject.bookmarket.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +49,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private UserService userService;
 
 
     //// get To Cart without Token
@@ -251,9 +258,43 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrdersByUser(Long userId) {
-        return orderRepository.findByUserId(userId);
+    public List<OrderHistoryDto> getOrdersByUser(String token) {
+        String email = userService.Authentication(token);
+        User user = userRepository.findByEmail(email).orElse(null);
+        if(user == null){
+            return null;
+        }
+        Long userId = user.getId();
+        List<Order> orders = orderRepository.findByUserId(userId);
+        List<OrderHistoryDto> orderHistoryDtos = orders.stream().map(order -> {
+            OrderHistoryDto orderHistoryDto = new OrderHistoryDto();
+            orderHistoryDto.setId(order.getId());
+            orderHistoryDto.setStatus(order.getStatus());
+            orderHistoryDto.setAddress(order.getAddress());
+            Payment payment = order.getPayment();
+            PaymentDto paymentDto = new PaymentDto();
+            paymentDto.setCode(payment.getCode());
+            paymentDto.setDate(payment.getDate());
+            paymentDto.setTotal(payment.getTotal());
+            orderHistoryDto.setPayment(paymentDto);
+            List<OrderItemDto> orderItemDtos = order.getOrderItems().stream().map(orderItem -> {
+                OrderItemDto orderItemDto = new OrderItemDto();
+                orderItemDto.setId(orderItem.getId());
+                orderItemDto.setQuantity(orderItem.getQuantity());
+                orderItemDto.setPrice(orderItem.getPrice());
+                BookDto bookDto = new BookDto();
+                Book book = orderItem.getBook();
+                bookDto.setId(book.getId());
+                bookDto.setTitle(book.getTitle());
+                orderItemDto.setBook(bookDto);
+                return orderItemDto;
+            }).collect(Collectors.toList());
+            orderHistoryDto.setOrderItems(orderItemDtos);
+            return orderHistoryDto;
+        }).collect(Collectors.toList());
+        return orderHistoryDtos;
     }
+
 }
 
 

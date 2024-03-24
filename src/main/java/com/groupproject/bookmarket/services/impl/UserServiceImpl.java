@@ -156,7 +156,17 @@ public class UserServiceImpl implements UserService{
 
 	}
 
-    @Override
+	@Override
+	public Long getUserId(String token) {
+		String email = Authentication(token);
+		User user = userRepository.findByEmail(email).orElse(null);
+		if(user != null){
+			return user.getId();
+		}
+		return null;
+	}
+
+	@Override
     public ResponseEntity<PaginationResponse> searchPaginateUserByFullNameAndEmail(String q, int size, int cPage) {
         if ( q == null || q.isEmpty()) {
             q = "%";
