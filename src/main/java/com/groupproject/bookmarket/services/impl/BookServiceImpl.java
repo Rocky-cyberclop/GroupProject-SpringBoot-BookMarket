@@ -261,6 +261,7 @@ class BookServiceImpl implements BookService {
                     comment.setRating(commentItem.getRating());
                     comment.setEmailUser(commentItem.getUser().getEmail());
                     comment.setFullNameUser(commentItem.getUser().getFullName());
+                    comment.setAvatarUser(commentItem.getUser().getAvatar());
                     return comment;
                 }).toList();
     }

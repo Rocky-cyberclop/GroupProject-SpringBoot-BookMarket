@@ -255,15 +255,23 @@ public class OrderServiceImpl implements OrderService {
     }
     @Override
     public ResponseEntity<?> getDiscountPercentAndIdByCode(String code) {
-        Voucher voucher = voucherRepository.findByCode(code).orElse(null);
-        if (voucher != null) {
-            if (voucher.getQuantity() > 0) {
-                return ResponseEntity.ok(new VoucherDTO(voucher.getId(), voucher.getPercent()));
+        Optional<Voucher> voucher = voucherRepository.findByCode(code);
+        if (voucher.isPresent()) {
+            if (voucher.get().getQuantity() > 0) {
+                VoucherDTO voucherDTO = new VoucherDTO();
+                voucherDTO.setId(voucher.get().getId());
+                voucherDTO.setPercent(voucher.get().getPercent());
+                voucherDTO.setResCode("200");
+                voucherDTO.setMessage("Voucher discount " + (voucher.get().getPercent() * 100) + "%");
+                return ResponseEntity.ok(voucherDTO);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher is out of stock");
+                VoucherDTO voucherDTO = new VoucherDTO();
+                voucherDTO.setResCode("300");
+                voucherDTO.setMessage("Voucher is out of stock ");
+                return ResponseEntity.ok(voucherDTO);
             }
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
+            return ResponseEntity.ok("Voucher not found");
         }
     }
 

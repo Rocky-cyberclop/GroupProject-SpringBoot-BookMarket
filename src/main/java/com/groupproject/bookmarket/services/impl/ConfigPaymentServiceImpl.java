@@ -110,7 +110,7 @@ public class ConfigPaymentServiceImpl implements ConfigPaymenntService {
 
 
     @Override
-    public ResponseEntity<?> handlePaymentResult(@RequestBody VnpPaymentDTO requestData, String email) {
+    public ResponseEntity<?> handlePaymentResult(VnpPaymentDTO requestData, String email) {
 
         StringBuilder hashData = new StringBuilder();
         String vnp_SecureHash = hmacSHA512("WMSXYGCIRXCTNIBMUMWGDCFBVZMNZEPW", hashData.toString());
