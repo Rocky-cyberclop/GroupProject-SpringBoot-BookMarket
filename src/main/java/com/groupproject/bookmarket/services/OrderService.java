@@ -1,5 +1,6 @@
 package com.groupproject.bookmarket.services;
 
+import com.groupproject.bookmarket.dtos.OrderHistoryDto;
 import com.groupproject.bookmarket.models.CartItem;
 import com.groupproject.bookmarket.models.Order;
 import com.groupproject.bookmarket.requests.CartRequest;
@@ -30,6 +31,7 @@ public interface OrderService {
 
     ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
 
+    List<OrderHistoryDto> getOrdersByUser(String token);
     ResponseEntity<?> getDiscountPercentAndIdByCode(String code);
 
     CartItem incrementQuantity(Long cartItemId);

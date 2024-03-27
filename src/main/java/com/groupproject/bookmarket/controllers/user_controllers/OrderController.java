@@ -1,5 +1,6 @@
 package com.groupproject.bookmarket.controllers.user_controllers;
 
+import com.groupproject.bookmarket.dtos.OrderHistoryDto;
 import com.groupproject.bookmarket.dtos.TotalPricedto;
 import com.groupproject.bookmarket.dtos.VnpPaymentDTO;
 import com.groupproject.bookmarket.models.CartItem;
@@ -83,19 +84,10 @@ public class OrderController {
         return orderService.sendReceipt(orderRequest,userOptional.get().getId());
     }
 
-//    @GetMapping("/order/{userId}")
-//    public List<Order> getOrdersByUser(@RequestHeader(name = "Authorization") String token) {
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//
-//        }
-//        String email = jwtService.extractUsername(token);
-//        Optional<User> userOptional = userRepository.findByEmail(email);
-//        if (userOptional.isEmpty()){
-//            throw new RuntimeException("User not found");
-//        }
-//        return orderService.getOrderInfoById(userOptional.get().getId());
-//    }
+    @GetMapping("order/history")
+    public List<OrderHistoryDto> getOrdersByUser(@RequestHeader(name = "Authorization") String token) {
+        return orderService.getOrdersByUser(token);
+    }
     @GetMapping("/get/fullName")
     public String getFullNameeUser(@RequestHeader(name = "Authorization") String token){
         if (token != null && token.startsWith("Bearer ")) {

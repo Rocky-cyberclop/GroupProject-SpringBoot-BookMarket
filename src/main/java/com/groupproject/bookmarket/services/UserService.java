@@ -26,6 +26,8 @@ public interface UserService {
 
 	boolean saveProfile(String username, String fullname, String phone, String address, MultipartFile avatar, String token) throws IOException;
 
+	Long getUserId(String token);
+
 	ResponseEntity<PaginationResponse> searchPaginateUserByFullNameAndEmail(String q, int size, int cPage);
 
 	ResponseEntity<MyResponse> addNewAdminUser(AuthRequest authRequest);
