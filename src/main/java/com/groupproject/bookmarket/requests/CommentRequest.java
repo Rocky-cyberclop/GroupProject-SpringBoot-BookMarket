@@ -21,4 +21,5 @@ public class CommentRequest {
     private String content;
     private String fullNameUser;
     private String emailUser;
+    private String avatarUser;
 }

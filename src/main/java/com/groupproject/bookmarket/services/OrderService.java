@@ -30,6 +30,7 @@ public interface OrderService {
 
     ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
 
+
     ResponseEntity<?> getDiscountPercentAndIdByCode(String code);
 
     CartItem incrementQuantity(Long cartItemId);

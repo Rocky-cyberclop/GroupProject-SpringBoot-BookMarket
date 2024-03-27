@@ -1,9 +1,10 @@
 package com.groupproject.bookmarket.controllers.user_controllers;
 
+import com.groupproject.bookmarket.dtos.AuthRequest;
+import com.groupproject.bookmarket.dtos.UserDto;
 import com.groupproject.bookmarket.models.User;
-import com.groupproject.bookmarket.payload.ResponseData;
 import com.groupproject.bookmarket.repositories.UserRepository;
-import com.groupproject.bookmarket.requests.AuthRequest;
+import com.groupproject.bookmarket.services.FileService;
 import com.groupproject.bookmarket.services.JwtService;
 import com.groupproject.bookmarket.services.UserService;
 
@@ -19,11 +20,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/user")
@@ -37,8 +39,10 @@ public class LoginController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private FileService fileService;
     @PostMapping("/signin")
-    public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<String> authenticateAndGetToken(@RequestBody  AuthRequest authRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
             if (authentication.isAuthenticated()) {
@@ -60,11 +64,9 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tài khoản hoặc mật khẩu không chính xác");
     }
 
-    @PostMapping(value = "/signup")
-    public ResponseEntity<?> signup(@RequestBody AuthRequest authRequest){
-        ResponseData responseData = new ResponseData();
-        responseData.setData(userService.addUser(authRequest));
-        return new ResponseEntity<>(responseData,HttpStatus.OK);
+    @PostMapping( "/signup")
+    public boolean signup(@RequestBody AuthRequest authRequest){
+        return userService.addUser(authRequest);
     }
 
     @PostMapping("/save")
@@ -77,5 +79,21 @@ public class LoginController {
     @GetMapping("/getAllUser")
     public List<User> getAllUser(){
         return repository.findAll();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getProfile(@RequestHeader (name="Authorization") String token){
+        return userService.getProfile(token);
+    }
+
+    @PostMapping("/profile/save")
+    public boolean saveProfile(
+            @RequestParam("username") String userName,
+            @RequestParam("fullname") String fullName,
+            @RequestParam("phone") String phone,
+            @RequestParam("address") String address,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
+            @RequestHeader (name = "Authorization") String token) throws IOException {
+        return userService.saveProfile(userName,fullName,phone,address,avatar,token);
     }
 }

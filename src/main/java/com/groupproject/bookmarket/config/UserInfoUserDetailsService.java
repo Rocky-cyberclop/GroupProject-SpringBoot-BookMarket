@@ -1,6 +1,5 @@
 package com.groupproject.bookmarket.config;
 
-
 import com.groupproject.bookmarket.models.User;
 import com.groupproject.bookmarket.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
