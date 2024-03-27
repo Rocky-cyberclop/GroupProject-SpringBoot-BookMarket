@@ -6,6 +6,7 @@ import com.groupproject.bookmarket.dtos.DateAndSales;
 import com.groupproject.bookmarket.models.*;
 import com.groupproject.bookmarket.repositories.*;
 import com.groupproject.bookmarket.services.TestQueryService;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -162,6 +163,12 @@ public class TestQueryServiceImpl implements TestQueryService {
             throw new RuntimeException(e);
         }
         testingRepository.saveAll(testings);
+    }
+
+    public void dosomething(){
+        Author author = new Author();
+        EntityManager entityManager = null;
+        entityManager.refresh(author);
     }
 
 }

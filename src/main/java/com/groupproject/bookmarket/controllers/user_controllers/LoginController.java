@@ -2,6 +2,7 @@ package com.groupproject.bookmarket.controllers.user_controllers;
 
 import com.groupproject.bookmarket.dtos.AuthRequest;
 import com.groupproject.bookmarket.dtos.UserDto;
+import com.groupproject.bookmarket.dtos.UserDto2;
 import com.groupproject.bookmarket.models.User;
 import com.groupproject.bookmarket.repositories.UserRepository;
 import com.groupproject.bookmarket.services.FileService;
@@ -82,7 +83,7 @@ public class LoginController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserDto> getProfile(@RequestHeader (name="Authorization") String token){
+    public ResponseEntity<UserDto2> getProfile(@RequestHeader (name="Authorization") String token){
         return userService.getProfile(token);
     }
 
