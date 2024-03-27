@@ -14,20 +14,19 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class UserDto {
-    private Long id;
-    private String username;
+public interface UserDto {
+    public Long getId();
+    public String getUsername();
 
-    private String fullName;
+    public String getFullName();
 
-    private String email;
+    public String getEmail();
 
-    private String phone;
+    public String getPhone();
 
-    private String address;
+    public String getAddress();
 
-    private String role;
+    public String getRole();
 
-    private String avatar;
+    public String getAvatar();
 }

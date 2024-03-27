@@ -27,12 +27,16 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter authFilter;
 
-
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
     @Bean
     //authentication
     public UserDetailsService userDetailsService() {
         return new UserInfoUserDetailsService();
     }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
