@@ -1,6 +1,7 @@
 package com.groupproject.bookmarket.config;
 
 import com.groupproject.bookmarket.models.User;
+import lombok.Data;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
+@Data
 public class UserInfoUserDetails implements UserDetails {
 
     private Long id;
@@ -32,9 +33,6 @@ public class UserInfoUserDetails implements UserDetails {
         return authorities;
     }
 
-    public Long getId() {
-        return id;
-    }
 
     @Override
     public String getPassword() {

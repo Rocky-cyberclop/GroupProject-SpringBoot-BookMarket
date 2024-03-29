@@ -19,7 +19,4 @@ public class OrderItemDto {
         private Long price;
 
         private BookDto book;
-
-        private Order order;
-
 }
