@@ -31,11 +31,8 @@ public interface OrderService {
 
     ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
 
-<<<<<<< HEAD
 
-=======
     List<OrderHistoryDto> getOrdersByUser(String token);
->>>>>>> 6d14b9de69bfd2f361b432daa24b0afac3c85731
     ResponseEntity<?> getDiscountPercentAndIdByCode(String code);
 
     CartItem incrementQuantity(Long cartItemId);

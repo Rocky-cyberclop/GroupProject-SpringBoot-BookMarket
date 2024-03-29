@@ -14,9 +14,9 @@ public class BookMarketApplication {
 		SpringApplication.run(BookMarketApplication.class, args);
 		System.out.println("Done!");
 	}
-	@Bean
-	BCryptPasswordEncoder bCryptPasswordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
+//	@Bean
+//	BCryptPasswordEncoder bCryptPasswordEncoder(){
+//		return new BCryptPasswordEncoder();
+//	}
 
 }
