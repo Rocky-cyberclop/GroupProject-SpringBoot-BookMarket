@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,22 +90,27 @@ public class OrderController {
         return orderService.getOrdersByUser(token);
     }
     @GetMapping("/get/fullName")
-    public String getFullNameeUser(@RequestHeader(name = "Authorization") String token){
+    public Map<String, String> getFullNameAndAvatarUser(@RequestHeader(name = "Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-
         }
         String email = jwtService.extractUsername(token);
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()){
+        if (userOptional.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        return userOptional.get().getFullName();
+        User user = userOptional.get();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("fullName", user.getFullName());
+        response.put("avatarUrl", user.getAvatar()); // Assuming getAvatarUrl() is the method to get the avatar URL
+
+        return response;
     }
     @PostMapping("/checkout/createUrl")
     public ResponseEntity<MessageResponse> createUrlPayment(@RequestBody TotalPricedto totalPricedto, @RequestHeader(name = "Authorization") String token) throws UnsupportedEncodingException {
-//        System.out.println(totalPricedto.getTotalPrice());
-//        System.out.println(token);
+        System.out.println(totalPricedto.getTotalPrice());
+        System.out.println(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }

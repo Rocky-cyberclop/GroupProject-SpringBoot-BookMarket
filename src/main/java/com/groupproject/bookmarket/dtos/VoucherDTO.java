@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 public class VoucherDTO {
     private Long id;
     private Float percent;
+    private String message;
+    private String resCode;
 }
 
