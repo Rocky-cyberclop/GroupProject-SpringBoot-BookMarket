@@ -137,7 +137,7 @@ class BookServiceImpl implements BookService {
             bookOptional.get().setIsDelete(false);
             bookOptional.get().setAuthors(authors);
             bookOptional.get().setGenres(genres);
-
+            bookRepository.save(bookOptional.get());
             //delete images
             if (images != null) {
                 List<Image> listOldImages = bookOptional.get().getImages();
