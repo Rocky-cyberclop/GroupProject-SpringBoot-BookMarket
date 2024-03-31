@@ -7,7 +7,9 @@ import com.groupproject.bookmarket.requests.DeleteBooksRequest;
 import com.groupproject.bookmarket.responses.MyResponse;
 import com.groupproject.bookmarket.responses.PaginationResponse;
 import com.groupproject.bookmarket.services.BookService;
+import com.groupproject.bookmarket.services.FilesStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,8 @@ import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FO
 public class BookAdminController {
     @Autowired
     private BookService bookService;
+    @Autowired
+    private FilesStorageService filesStorageService;
 
 
     @GetMapping("/search")
@@ -55,6 +59,12 @@ public class BookAdminController {
     @PostMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MyResponse> deleteBooks(@RequestBody DeleteBooksRequest request) {
         return bookService.deleteBooks(request.getBookIds());
+    }
+
+    @PostMapping(value = "/testImages",consumes = MULTIPART_FORM_DATA, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> addNewBook(@RequestPart(value = "image", required = false) MultipartFile image) throws JsonProcessingException {
+        filesStorageService.saveBookImages(List.of(image));
+        return new ResponseEntity<>("Add file successfully!", HttpStatus.OK);
     }
 
 }
