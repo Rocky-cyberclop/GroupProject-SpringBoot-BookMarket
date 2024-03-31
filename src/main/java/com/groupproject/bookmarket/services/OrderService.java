@@ -31,7 +31,6 @@ public interface OrderService {
 
     ResponseEntity<String> sendReceipt(OrderRequest orderRequest, Long userId);
 
-
     List<OrderHistoryDto> getOrdersByUser(String token);
     ResponseEntity<?> getDiscountPercentAndIdByCode(String code);
 

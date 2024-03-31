@@ -69,15 +69,17 @@ public class OrderController {
     @PostMapping("/cart/checkout")
     public ResponseEntity<String> checkOut(@RequestBody OrderRequest orderRequest,@RequestHeader(name = "Authorization") String token){
 
-        System.out.println(orderRequest.getCartItemIds());
-        System.out.println(orderRequest.getVoucherId());
+//        System.out.println(orderRequest.getCartItemIds());
+//        System.out.println(orderRequest.getVoucherId());
 //        System.out.println(orderRequest.getAddress());
-        System.out.println(orderRequest.getCode());
+//        System.out.println(orderRequest.getCode());
+        System.out.println("Before extract token!");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
         String email = jwtService.extractUsername(token);
         Optional<User> userOptional = userRepository.findByEmail(email);
+        System.out.println("After extract token!");
         if (userOptional.isEmpty()){
             throw new RuntimeException("User not found");
         }

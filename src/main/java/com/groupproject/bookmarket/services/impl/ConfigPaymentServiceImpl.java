@@ -157,11 +157,12 @@ public class ConfigPaymentServiceImpl implements ConfigPaymenntService {
                 paymentInfoResponse.setPayDay(payDayFormat);
                 paymentInfoResponse.setMessage("success");
                 paymentInfoResponse.setResCode("200");
-//                redisTemplate.delete(email);
+                redisTemplate.delete(email);
                 return ResponseEntity.status(HttpStatus.OK).body(paymentInfoResponse);
             } else {
                 return ResponseEntity.status(HttpStatus.OK).body("vnp_TxnRef code is incorrect");
             }
+
         } else {
             return ResponseEntity.status(HttpStatus.OK).body("Payment Failed");
         }
