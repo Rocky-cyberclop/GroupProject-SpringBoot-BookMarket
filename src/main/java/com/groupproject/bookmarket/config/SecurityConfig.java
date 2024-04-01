@@ -64,7 +64,9 @@ public class SecurityConfig {
                                         "/mail/valid/**",
                                         "/mail/send/**",
                                         "/api/user/**",
-                                        "/api/user/save")
+                                        "/api/user/save",
+                                        "/uploads/images/**"
+                                        )
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

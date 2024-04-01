@@ -98,7 +98,7 @@ class BookServiceImpl implements BookService {
         images.forEach(image -> {
             Image newImage = new Image();
             newImage.setId(null);
-            newImage.setUrl("http://localhost:8080/uploads/images/book/" + image.getOriginalFilename());
+            newImage.setUrl("http://localhost:8080/api/v1/admin/book/images-get/" + image.getOriginalFilename());
             newImage.setBook(bookSaved);
             imageList.add(newImage);
         });
@@ -142,8 +142,8 @@ class BookServiceImpl implements BookService {
             if (images != null) {
                 List<Image> listOldImages = bookOptional.get().getImages();
                 List<String> listOldNameImages = listOldImages.stream().map(image -> {
-                    if (image.getUrl().contains("http://localhost:8080/uploads/images/book/")) {
-                        return image.getUrl().substring(42);
+                    if (image.getUrl().contains("http://localhost:8080/api/v1/admin/book/images-get/")) {
+                        return image.getUrl().substring(51);
                     } else {
                         return null;
                     }
@@ -161,7 +161,7 @@ class BookServiceImpl implements BookService {
                 images.forEach(image -> {
                     Image newImage = new Image();
                     newImage.setId(null);
-                    newImage.setUrl("http://localhost:8080/uploads/images/book/" + image.getOriginalFilename());
+                    newImage.setUrl("http://localhost:8080/api/v1/admin/book/images-get/" + image.getOriginalFilename());
                     newImage.setBook(bookSaved);
                     imageList.add(newImage);
                 });
