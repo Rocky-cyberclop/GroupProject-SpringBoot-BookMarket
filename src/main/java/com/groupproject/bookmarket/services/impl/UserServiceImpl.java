@@ -80,7 +80,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean addUser(AuthRequest authRequest) {
         Optional<User> users = userRepository.findByEmail(authRequest.getUsername());
-
         if (users.isEmpty()) {
             User user = new User();
             user.setEmail(authRequest.getUsername());
@@ -95,7 +94,6 @@ public class UserServiceImpl implements UserService {
         } else {
             return false;
         }
-
     }
 
     @Override
@@ -147,6 +145,26 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.ok(userDto);
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public boolean changePassword(String token, String password, String newPassword) {
+        String email = Authentication(token);
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if(user == null){
+            return false;
+        }
+        else{
+            if (bCryptPasswordEncoder.matches(password, user.getPassword())){
+                user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+                userRepository.save(user);
+                return true;
+            }
+            else{
+                return false;
+            }
         }
     }
 

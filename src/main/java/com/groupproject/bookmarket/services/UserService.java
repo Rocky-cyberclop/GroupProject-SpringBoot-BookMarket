@@ -24,6 +24,8 @@ public interface UserService {
 
 	ResponseEntity<UserDto2> getProfile(String token);
 
+	boolean changePassword(String token, String password, String newPassword);
+
 	boolean saveProfile(String username, String fullname, String phone, String address, MultipartFile avatar, String token) throws IOException;
 
 	Long getUserId(String token);

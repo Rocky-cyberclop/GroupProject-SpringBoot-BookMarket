@@ -77,6 +77,13 @@ public class LoginController {
         return userService.changePass(mail,password);
     }
 
+    @PostMapping("/changePassword")
+    public boolean changPassword(@RequestHeader(name = "Authorization") String token, @RequestBody Map<String,String> resData){
+        String password = resData.get("password");
+        String newPassword = resData.get("newPassword");
+        return userService.changePassword(token, password, newPassword);
+    }
+
     @GetMapping("/getAllUser")
     public List<User> getAllUser(){
         return repository.findAll();
